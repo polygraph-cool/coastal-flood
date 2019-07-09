@@ -1,0 +1,17 @@
+{
+	"title": "Title Case Hed Goes Here",
+	"description": "Sentence case dek goes down here. Modify these in data/meta.json.",
+	"site": "https://site.com",
+	"siteName": "",
+	"url": "https://site.com/year/month/name/",
+	"keywords": "tk",
+	"imgFacebook": "https://site.com/year/month/name/assets/social/social-facebook.jpg",
+	"imgTwitter": "https://site.com/year/month/name/assets/social/social-twitter.jpg",
+	"author": {
+		"name": "",
+		"url": "https://site.com/author/the-pudding-team",
+		"twitterHandle": ""
+	},
+	"analytics": "",
+	"lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mollis neque sit amet sollicitudin vehicula. Maecenas fringilla mi non lacus mattis elementum. Curabitur dignissim faucibus justo."
+}

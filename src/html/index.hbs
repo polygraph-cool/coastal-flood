@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang='en' data-version='{{timestamp}}'>
+
+<head>
+
+	{{> base/meta}}
+
+	<link inline rel='stylesheet' href='bundle.css' />
+	<link href="https://fonts.googleapis.com/css?family=Source+Serif+Pro:400,700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://use.typekit.net/htl6lvg.css">
+
+
+	<script inline src='head.js'></script>
+
+	{{> base/analytics }}
+
+</head>
+
+<body>
+
+	<section class="intro">
+		{{#each copy.intro}}
+			<div class="intro__step">
+				<p class="intro__step__text">
+					<mark>
+						{{this.value}}
+					</mark>
+				</p>
+			</div>
+		{{/each}}
+	</section>
+	<section class="background">
+	</section>
+
+	
+
+
+	<script src='{{basepath}}assets/scripts/d3.v5.9.1.min.js'></script>
+	<script src='main.js?version={{timestamp}}' async></script>
+</body>
+
+</html>
