@@ -30,6 +30,18 @@
 		{{/each}}
 	</section>
 	<section class="background">
+		{{#each copy.background}}
+			{{#ifEquals this.type 'text'}}
+				<p class="background__text">
+					{{this.value}}
+				</p>
+			{{/ifEquals}}
+
+			{{#ifEquals this.type 'chart'}}
+				<div id="{{this.value}}">
+				</div>
+			{{/ifEquals}}
+		{{/each}}
 	</section>
 
 	
