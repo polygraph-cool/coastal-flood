@@ -1,7 +1,8 @@
 /* global d3 */
 import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
-import graphic from './graphic';
+import hurricanes from './hurricanes';
+import seaLevel from './sea-level';
 import './intro';
 
 // import footer from './footer';
@@ -15,32 +16,21 @@ function resize() {
   const width = $body.node().offsetWidth;
   if (previousWidth !== width) {
     previousWidth = width;
-    graphic.resize();
-  }
-}
-
-function setupStickyHeader() {
-  const $header = $body.select('header');
-  if ($header.classed('is-sticky')) {
-    const $menu = $body.select('.header__menu');
-    const $toggle = $body.select('.header__toggle');
-    $toggle.on('click', () => {
-      const visible = $menu.classed('is-visible');
-      $menu.classed('is-visible', !visible);
-      $toggle.classed('is-visible', !visible);
-    });
+    hurricanes.resize();
+    seaLevel.resize();
   }
 }
 
 function init() {
   // add mobile class to body tag
   $body.classed('is-mobile', isMobile.any());
-  // setup resize event
+  // setup resize addEventListener
   window.addEventListener('resize', debounce(resize, 150));
   // setup sticky header menu
   // setupStickyHeader();
   // kick off graphic code
-  graphic.init();
+  hurricanes.init();
+  seaLevel.init();
   // load footer stories
   // footer.init();
 }

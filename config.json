@@ -12,9 +12,14 @@
     ],
     "sheet": [
       {
-        "id": "",
-        "gid": "",
-        "filepath": ""
+        "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
+        "gid": "0",
+        "filepath": "src/assets/data/hurricanes.json"
+      },
+      {
+        "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
+        "gid": "1511407368",
+        "filepath": "src/assets/data/sea-level.json"
       }
     ]
   }
