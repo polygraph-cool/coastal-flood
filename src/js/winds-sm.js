@@ -14,6 +14,8 @@ let svgWidth,
     chartHeight,
     xScale,
     yScale,
+    line,
+    numChartsInRow,
     margins = {
       top: 20,
       right: 50,
@@ -25,7 +27,8 @@ let svgWidth,
 let $container,
     $svg,
     $g,
-    $charts;
+    $charts,
+    $paths;
 
 function init() {
   loadData(['winds_county.json'])
@@ -41,13 +44,38 @@ function init() {
         }, {});
       }).sort((a, b) => a.year - b.year);
 
-      console.log(data)
+      data.forEach(county => {
+        county.lineValues = [
+          {
+            'year': 1985,
+            'value': county['expected_rcp85_hurricane_wind_exposure_1979_1989_q0.50']
+          },
+          {
+            'year': 2018,
+            'value': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.50']
+          },
+          {
+            'year': 2050,
+            'value': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50']
+          }
+        ]
+      })
 
       constructChart();
     });
 }
 
 function constructChart() {
+  xScale = d3.scaleBand()
+    .domain(data[0].lineValues.map(e => e.year).sort());
+
+  yScale = d3.scaleLinear()
+    .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.95']))]);
+
+  line = d3.line()
+    .x(d => xScale(d.year))
+    .y(d => yScale(d.value));
+
   $container = d3.select(containerSelector);
 
   $svg = $container.append('svg');
@@ -58,23 +86,42 @@ function constructChart() {
     .append('g')
     .classed('chart', true);
 
+  $paths = $charts.selectAll('path')
+    .data(d => [d.lineValues])
+    .enter()
+    .append('path')
+    .style('fill', 'none')
+    .style('stroke', 'white');
+
   resize();
 }
 
 function renderChart() {
   $svg.attr('width', svgWidth)
-    .attr('height', svgHeight)
+    .attr('height', svgHeight);
+
+  $charts.attr('transform', (d, i) => {
+    let rowIndex = Math.floor(i / numChartsInRow);
+    let colIndex = i - (rowIndex * numChartsInRow);
+
+    return `translate(${colIndex * chartWidth},${rowIndex * chartHeight})`
+  });
+
+  $paths.attr('d', d => line(d));
 }
 
 function resize() {
-  svgWidth = $container.node().getBoundingClientRect().width - margins.left - margins.right;
+  svgWidth = $container.node().getBoundingClientRect().width;
 
-  let numChartsInRow = Math.floor(svgWidth / minChartWidth);
+  numChartsInRow = Math.floor(svgWidth / minChartWidth);
 
   chartWidth = svgWidth / numChartsInRow
   chartHeight = chartWidth * chartAspectRatio;
 
   svgHeight = Math.ceil(data.length / numChartsInRow) * chartHeight;
+
+  xScale.range([0, chartWidth]);
+  yScale.range([chartHeight, 0]);
 
   renderChart();
 }
