@@ -15,12 +15,14 @@ let svgWidth,
     xScale,
     yScale,
     line,
+    area,
+    sortOrder,
     numChartsInRow,
     margins = {
       top: 20,
-      right: 50,
+      right: 25,
       bottom: 20,
-      left: 50
+      left: 25
     };
 
 // Chart components
@@ -28,7 +30,9 @@ let $container,
     $svg,
     $g,
     $charts,
-    $paths;
+    $paths,
+    $fills,
+    $titles;
 
 function init() {
   loadData(['winds_county.json'])
@@ -61,20 +65,29 @@ function init() {
         ]
       })
 
+      sortOrder = data.sort((a, b) => {
+        return b['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50'] - a['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50'];
+      }).map(e => e.situs_county);
+
       constructChart();
     });
 }
 
 function constructChart() {
-  xScale = d3.scaleBand()
+  xScale = d3.scalePoint()
     .domain(data[0].lineValues.map(e => e.year).sort());
 
   yScale = d3.scaleLinear()
     .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.95']))]);
 
   line = d3.line()
-    .x(d => xScale(d.year))
+    .x(d => xScale(d.year) + margins.left)
     .y(d => yScale(d.value));
+
+  area = d3.area()
+    .x(d => xScale(d.year) + margins.left)
+    .y0(0)
+    .y1(d => yScale(d.value));
 
   $container = d3.select(containerSelector);
 
@@ -86,12 +99,27 @@ function constructChart() {
     .append('g')
     .classed('chart', true);
 
-  $paths = $charts.selectAll('path')
+  $fills = $charts.selectAll('.fill')
     .data(d => [d.lineValues])
     .enter()
     .append('path')
+    .classed('fill', true)
+    .style('fill', 'none')
+    .style('fill', 'orange');
+
+  $paths = $charts.selectAll('.line')
+    .data(d => [d.lineValues])
+    .enter()
+    .append('path')
+    .classed('line', true)
     .style('fill', 'none')
     .style('stroke', 'white');
+
+  $titles = $charts
+    .append('text')
+    .text(d => d.situs_county)
+    .attr('text-anchor', 'middle')
+    .style('fill', 'white');
 
   resize();
 }
@@ -100,14 +128,24 @@ function renderChart() {
   $svg.attr('width', svgWidth)
     .attr('height', svgHeight);
 
-  $charts.attr('transform', (d, i) => {
+  $charts.attr('transform', (d) => {
+    let i = sortOrder.indexOf(d.situs_county);
+
     let rowIndex = Math.floor(i / numChartsInRow);
     let colIndex = i - (rowIndex * numChartsInRow);
 
-    return `translate(${colIndex * chartWidth},${rowIndex * chartHeight})`
+    let w = chartWidth + margins.left + margins.right;
+    let h = chartHeight + margins.top + margins.bottom;
+
+    return `translate(${colIndex * w},${rowIndex * h})`
   });
 
+  $titles
+    .attr('x', (chartWidth / 2) + margins.left)
+    .attr('y', 25)
+
   $paths.attr('d', d => line(d));
+  $fills.attr('d', d => area(d));
 }
 
 function resize() {
@@ -115,10 +153,12 @@ function resize() {
 
   numChartsInRow = Math.floor(svgWidth / minChartWidth);
 
-  chartWidth = svgWidth / numChartsInRow
-  chartHeight = chartWidth * chartAspectRatio;
+  chartWidth = (svgWidth / numChartsInRow) - margins.left - margins.right;
+  chartHeight = (chartWidth * chartAspectRatio) - margins.top - margins.bottom;
 
-  svgHeight = Math.ceil(data.length / numChartsInRow) * chartHeight;
+  svgHeight = Math.ceil(data.length / numChartsInRow) * (chartHeight + margins.top + margins.bottom);
+
+  area.y0(chartHeight)
 
   xScale.range([0, chartWidth]);
   yScale.range([chartHeight, 0]);
