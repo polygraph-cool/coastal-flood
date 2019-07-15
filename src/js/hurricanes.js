@@ -1,11 +1,15 @@
 import loadData from './load-data';
+import enterView from 'enter-view';
 
 let data;
+
+// Whether or not the chart has been animated in
+let isVisible = false;
 
 // constants
 const containerSelector = '#hurricanes';
 const barPadding = 5;
-const chartTitle = 'Hurricanes in the United States, 1930-2019'
+const chartTitle = 'Hurricanes in the United States, 1930-2019';
 
 // Scales and measures
 let width,
@@ -28,6 +32,12 @@ let $container,
     $majorStormRects,
     $title;
 
+enterView({
+  selector: containerSelector,
+  offset: 0.5,
+  enter: animateChartEnter,
+})
+
 function init() {
   loadData(['hurricanes.json']).then(([d]) => {
 
@@ -48,8 +58,6 @@ function constructChart() {
   // Set up the scales
   let years = data.map(d => d.year);
   let values = data.map(d => d.n_hurricanes);
-
-  console.log(data)
 
   xScale = d3.scaleBand()
     .domain(years.sort());
@@ -88,6 +96,22 @@ function constructChart() {
   resize();
 }
 
+function animateChartEnter() {
+  isVisible = true;
+
+  $majorStormRects
+    .transition()
+    .duration(500)
+    .delay((d, i) => i * 10)
+    .attr('height', d => yScale(d.n_major_hurricanes));
+
+  $normalStormRects
+    .transition()
+    .duration(500)
+    .delay((d, i) => i * 10)
+    .attr('height', d => yScale(d.n_hurricanes - d.n_major_hurricanes));
+}
+
 function renderChart() {
   $svg
     .attr('width', width + margins.left + margins.right)
@@ -99,13 +123,13 @@ function renderChart() {
     .attr('x', d => xScale(d.year))
     .attr('y', d => height - yScale(d.n_major_hurricanes))
     .attr('width', barWidth)
-    .attr('height', d => yScale(d.n_major_hurricanes));
+    .attr('height', d => isVisible ? yScale(d.n_major_hurricanes) : 0);
 
   $normalStormRects
     .attr('x', d => xScale(d.year))
     .attr('y', d => height - yScale(d.n_hurricanes - d.n_major_hurricanes) - yScale(d.n_major_hurricanes))
     .attr('width', barWidth)
-    .attr('height', d => yScale(d.n_hurricanes - d.n_major_hurricanes));
+    .attr('height', d => isVisible ? yScale(d.n_hurricanes - d.n_major_hurricanes) : 0);
 }
 
 function resize() {
