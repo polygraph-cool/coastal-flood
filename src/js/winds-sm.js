@@ -3,7 +3,9 @@ import loadData from './load-data';
 let data;
 
 // constants
-const containerSelector = '#winds-sm';
+const containerSelector = '#wind-sm';
+const minChartWidth = 250;
+const chartAspectRatio = 1.5;
 
 // Scales and measures
 let svgWidth,
@@ -46,15 +48,35 @@ function init() {
 }
 
 function constructChart() {
+  $container = d3.select(containerSelector);
 
+  $svg = $container.append('svg');
+
+  $charts = $svg.selectAll('.chart')
+    .data(data)
+    .enter()
+    .append('g')
+    .classed('chart', true);
+
+  resize();
 }
 
 function renderChart() {
-
+  $svg.attr('width', svgWidth)
+    .attr('height', svgHeight)
 }
 
 function resize() {
+  svgWidth = $container.node().getBoundingClientRect().width - margins.left - margins.right;
 
+  let numChartsInRow = Math.floor(svgWidth / minChartWidth);
+
+  chartWidth = svgWidth / numChartsInRow
+  chartHeight = chartWidth * chartAspectRatio;
+
+  svgHeight = Math.ceil(data.length / numChartsInRow) * chartHeight;
+
+  renderChart();
 }
 
 export default {
