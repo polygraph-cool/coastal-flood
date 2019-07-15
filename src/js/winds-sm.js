@@ -5,7 +5,7 @@ let data;
 // constants
 const containerSelector = '#wind-sm';
 const minChartWidth = 250;
-const chartAspectRatio = 1.5;
+const chartAspectRatio = 1.2;
 
 // Scales and measures
 let svgWidth,
@@ -18,8 +18,9 @@ let svgWidth,
     area,
     sortOrder,
     numChartsInRow,
+    xAxis,
     margins = {
-      top: 20,
+      top: 50,
       right: 25,
       bottom: 20,
       left: 25
@@ -32,7 +33,8 @@ let $container,
     $charts,
     $paths,
     $fills,
-    $titles;
+    $titles,
+    $xAxisGroups;
 
 function init() {
   loadData(['winds_county.json'])
@@ -78,7 +80,7 @@ function constructChart() {
     .domain(data[0].lineValues.map(e => e.year).sort());
 
   yScale = d3.scaleLinear()
-    .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.95']))]);
+    .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50']))]);
 
   line = d3.line()
     .x(d => xScale(d.year) + margins.left)
@@ -89,37 +91,41 @@ function constructChart() {
     .y0(0)
     .y1(d => yScale(d.value));
 
+  xAxis = d3.axisBottom(xScale)
+    .tickPadding(10)
+    .tickFormat(t => `‘${t.toString().slice(2)}`);
+
   $container = d3.select(containerSelector);
 
   $svg = $container.append('svg');
 
-  $charts = $svg.selectAll('.chart')
+  $charts = $svg.selectAll('.wind-sm')
     .data(data)
     .enter()
     .append('g')
-    .classed('chart', true);
+    .classed('wind-sm', true);
+
+  $xAxisGroups = $charts.append('g')
+    .classed('x axis', true);
 
   $fills = $charts.selectAll('.fill')
     .data(d => [d.lineValues])
     .enter()
     .append('path')
-    .classed('fill', true)
-    .style('fill', 'none')
-    .style('fill', 'orange');
+    .classed('fill', true);
 
   $paths = $charts.selectAll('.line')
     .data(d => [d.lineValues])
     .enter()
     .append('path')
-    .classed('line', true)
-    .style('fill', 'none')
-    .style('stroke', 'white');
+    .classed('line', true);
 
   $titles = $charts
     .append('text')
-    .text(d => d.situs_county)
+    .text(d => `${d.situs_county} County`)
     .attr('text-anchor', 'middle')
-    .style('fill', 'white');
+    .style('fill', 'white')
+    .classed('sm-title', true);
 
   resize();
 }
@@ -142,7 +148,11 @@ function renderChart() {
 
   $titles
     .attr('x', (chartWidth / 2) + margins.left)
-    .attr('y', 25)
+    .attr('y', 25);
+
+  $xAxisGroups
+    .attr('transform', `translate(${margins.left}, ${chartHeight})`)
+    .call(xAxis.tickSize(-(chartHeight - margins.top)));
 
   $paths.attr('d', d => line(d));
   $fills.attr('d', d => area(d));
@@ -161,7 +171,7 @@ function resize() {
   area.y0(chartHeight)
 
   xScale.range([0, chartWidth]);
-  yScale.range([chartHeight, 0]);
+  yScale.range([chartHeight, margins.top]);
 
   renderChart();
 }
