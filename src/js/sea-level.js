@@ -29,7 +29,7 @@ let $container,
     $title;
 
 function init() {
-  loadData(['sea-level.json'])
+  loadData(['sea_level.json'])
     .then(([d]) => {
       data = d.map(entry => {
         return Object.keys(entry).reduce((obj, key) => {

@@ -3,6 +3,7 @@ import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
 import hurricanes from './hurricanes';
 import seaLevel from './sea-level';
+import windSmallMultiples from './winds-sm';
 import './intro';
 
 // import footer from './footer';
@@ -18,6 +19,7 @@ function resize() {
     previousWidth = width;
     hurricanes.resize();
     seaLevel.resize();
+    windSmallMultiples.resize();
   }
 }
 
@@ -31,6 +33,7 @@ function init() {
   // kick off graphic code
   hurricanes.init();
   seaLevel.init();
+  windSmallMultiples.init();
   // load footer stories
   // footer.init();
 }
