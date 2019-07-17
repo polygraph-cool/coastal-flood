@@ -14,7 +14,7 @@ d3.select('#sm-toggle')
 // constants
 const containerSelector = '#wind-sm';
 const minChartWidth = 250;
-const chartAspectRatio = 1.2;
+const chartAspectRatio = 1.4;
 
 // Scales and measures
 let svgWidth,
@@ -113,7 +113,7 @@ function constructChart() {
     .domain(data[0].lineValues.map(e => e.year).sort());
 
   yScale = d3.scaleLinear()
-    .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50']))]);
+    .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83']))]);
 
   yScalePct = d3.scaleLinear()
     .domain([0, 0.05]);
@@ -173,6 +173,7 @@ function renderChart(duration = 0) {
   $charts
     .transition()
     .duration(duration)
+    .delay(duration)
     .attr('transform', (d) => {
     let i = currentSortOrder.indexOf(d.situs_county);
 
