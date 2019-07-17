@@ -47,6 +47,11 @@
 	<section class="story-section wind">
 		<div id="wind-main">
 			<div id="wind-main__chart">
+				<div id="wind-main__chart__svg">
+					<h2 class="wind-sm__header__title">
+						Properties Exposed to Hurricane-Force Winds
+					</h2>
+				</div>
 			</div>
 			<div id="wind-main__text">
 				{{#each copy.wind}}
@@ -59,6 +64,18 @@
 				<h2 class="wind-sm__header__title">
 					Properties Exposed to Hurricane-Force Winds
 				</h2>
+				<div class="toggle">
+				  <input id="sm-toggle" type="checkbox">
+				  <label for="sm-toggle">
+				  	<div class="toggle__option">
+							Percent
+				  	</div>
+				  	<div class="toggle__option">
+							Total
+				  	</div>
+				    <div class="toggle__switch" data-checked="Percent" data-unchecked="Total"></div>
+				  </label>
+				</div>
 			</div>
 		</div>
 	</section>

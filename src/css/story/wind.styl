@@ -4,6 +4,8 @@
   
 .wind-sm__header
   margin 50px auto
+  margin-bottom 150px
+
   &__title
     color $text
     font-family $sans
@@ -25,6 +27,14 @@
       opacity 0.5
       font-weight normal
       font-family $sans
+
+.bar
+  fill #e36f22
+  
+.bar-text
+  font-family $sans
+  fill $text
+  font-size 14px
 
 .wind-sm      
   .line
@@ -57,10 +67,14 @@
     margin-right 80px
     height 100vh
     
-    svg
+    &__svg
       position absolute
       top 50%
+      width 100%
       transform translateY(-50%)
+      
+      svg
+        overflow visible
     
     .line
       stroke #e36f22
@@ -79,4 +93,4 @@
       font-size 20px
       font-family $serif
       color $text
-      margin 150px 0
+      margin 200px 0

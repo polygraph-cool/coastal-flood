@@ -1,9 +1,10 @@
 import loadData from './load-data';
 
-let data;
+let data,
+  barPoints;
 
 // constants
-const containerSelector = '#wind-main__chart';
+const containerSelector = '#wind-main__chart__svg';
 
 // Scales and measures
 let width,
@@ -11,6 +12,7 @@ let width,
     xScale,
     yScaleProps,
     yScaleValues,
+    currentScale,
     line,
     area,
     sortOrder,
@@ -31,7 +33,8 @@ let $container,
     $path,
     $fill,
     $xAxisGroup,
-    $yAxisGroup;
+    $yAxisGroup,
+    $bars;
 
 function init() {
   loadData(['winds_county.json'])
@@ -83,6 +86,18 @@ function init() {
             'cost_83': data['value_expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83'],
           }
         ]
+
+      barPoints = data.reduce((arr, e) => {
+        arr = arr.concat([
+          {year: e.year, value: e.value_17},
+          {year: e.year, value: e.value_50},
+          {year: e.year, value: e.value_83},
+        ]);
+
+        return arr;
+      }, [])
+
+      console.log(barPoints)
 
       constructChart();
     });
@@ -140,28 +155,52 @@ function constructChart() {
     .append('path')
     .classed('line', true);
 
- 
+  $bars = $g.selectAll('.bar-wrap')
+    .data(barPoints)
+    .enter()
+    .append('g')
+    .classed('bar-wrap', true)
+    .style('opacity', 0);
+
+  $bars.append('rect')
+    .classed('bar', true)
+    .attr('width', 24)
+    .attr('height', 4)
+    .attr('transform', 'translate(-12, -2)');
+
+  $bars.append('text')
+    .classed('bar-text', true)
+    .text(d => Number(d.value.toFixed()).toLocaleString())
+    .attr('transform', 'translate(24, 4)');
 
   resize();
 }
 
-function renderChart() {
+function renderChart(duration = 0) {
   $svg.attr('width', width + margins.left + margins.right)
     .attr('height', height + margins.top + margins.bottom);
 
- $xAxisGroup
+  $bars
+    .attr('transform', d => `translate(${xScale(d.year)}, ${yScaleProps(d.value)})`)
+
+  $xAxisGroup
+    .transition()
+    .duration(duration)
     .attr('transform', `translate(0, ${height})`)
     .call(xAxis.tickSize(-height));
 
   $yAxisGroup
+    .transition()
+    .duration(duration)
     .call(yAxis.tickSize(-(width + 15)));
 
-  $path.attr('d', d => {
-    console.log(d)
-    return line(d)
-  });
+  $path.transition()
+    .duration(duration)
+    .attr('d', d => line(d));
 
-  $fill.attr('d', d => area(d));
+  $fill.transition()
+    .duration(duration)
+    .attr('d', d => area(d));
 }
 
 function resize() {
@@ -174,6 +213,25 @@ function resize() {
 
   renderChart();
 }
+
+function highlightYear(year) {
+  $path
+    .transition()
+    .duration(600)
+    .style('opacity', year === null ? 1 : 0.2);
+
+  $fill 
+    .transition()
+    .duration(600)
+    .style('opacity', year === null ? 1 : 0.2);
+
+  $bars
+    .transition()
+    .duration(600)
+    .style('opacity', d => d.year === year ? 1 : 0);
+}
+
+window.highlightYear = highlightYear;
 
 export default {
   init,
