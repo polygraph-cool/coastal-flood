@@ -45,6 +45,15 @@
 	</section>
 
 	<section class="story-section wind">
+		<div id="wind-main">
+			<div id="wind-main__chart">
+			</div>
+			<div id="wind-main__text">
+				{{#each copy.wind}}
+					<p>{{this.text}}</p>
+				{{/each}}
+			</div>
+		</div>
 		<div id="wind-sm">
 			<div class="wind-sm__header">
 				<h2 class="wind-sm__header__title">

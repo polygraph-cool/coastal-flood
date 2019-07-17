@@ -11,8 +11,7 @@
     margin auto
     text-align center
 
-.wind-sm
-  .x.axis
+.x.axis, .y.axis
     .domain
       display none
 
@@ -26,7 +25,8 @@
       opacity 0.5
       font-weight normal
       font-family $sans
-      
+
+.wind-sm      
   .line
     stroke #e36f22
     stroke-width 3
@@ -41,3 +41,42 @@
     font-family $sans
     font-size 14px
     opacity 0.7
+    
+#wind-main
+  max-width 1200px
+  margin auto
+  padding 0 25px
+  display flex
+  align-items flex-start
+  align-content flex-start
+
+  &__chart
+    flex 1
+    position sticky
+    top 0
+    margin-right 80px
+    height 100vh
+    
+    svg
+      position absolute
+      top 50%
+      transform translateY(-50%)
+    
+    .line
+      stroke #e36f22
+      stroke-width 3
+      fill none
+      
+    .fill
+      fill #e36f22
+      opacity 0.5
+    
+  &__text
+    width 350px
+    padding 50% 0
+    
+    p
+      font-size 20px
+      font-family $serif
+      color $text
+      margin 150px 0

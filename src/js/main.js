@@ -4,6 +4,7 @@ import isMobile from './utils/is-mobile';
 import hurricanes from './hurricanes';
 import seaLevel from './sea-level';
 import windSmallMultiples from './winds-sm';
+import windLarge from './wind-large';
 import './intro';
 
 // import footer from './footer';
@@ -20,6 +21,7 @@ function resize() {
     hurricanes.resize();
     seaLevel.resize();
     windSmallMultiples.resize();
+    windLarge.resize();
   }
 }
 
@@ -34,6 +36,7 @@ function init() {
   hurricanes.init();
   seaLevel.init();
   windSmallMultiples.init();
+  windLarge.init();
   // load footer stories
   // footer.init();
 }
