@@ -21,9 +21,9 @@ let svgWidth,
     xAxis,
     margins = {
       top: 50,
-      right: 25,
+      right: 40,
       bottom: 20,
-      left: 25
+      left: 40
     };
 
 // Chart components
@@ -50,19 +50,27 @@ function init() {
         }, {});
       }).sort((a, b) => a.year - b.year);
 
+      console.log(data)
+
       data.forEach(county => {
         county.lineValues = [
           {
             'year': 1985,
-            'value': county['expected_rcp85_hurricane_wind_exposure_1979_1989_q0.50']
+            'value_17': county['expected_rcp85_hurricane_wind_exposure_1979_1989_q0.17'],
+            'value_50': county['expected_rcp85_hurricane_wind_exposure_1979_1989_q0.50'],
+            'value_83': county['expected_rcp85_hurricane_wind_exposure_1979_1989_q0.83'],
           },
           {
             'year': 2018,
-            'value': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.50']
+            'value_17': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.17'],
+            'value_50': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.50'],
+            'value_83': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.83'],
           },
           {
             'year': 2050,
-            'value': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50']
+            'value_17': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.17'],
+            'value_50': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50'],
+            'value_83': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83'],
           }
         ]
       })
@@ -84,12 +92,12 @@ function constructChart() {
 
   line = d3.line()
     .x(d => xScale(d.year) + margins.left)
-    .y(d => yScale(d.value));
+    .y(d => yScale(d.value_50));
 
   area = d3.area()
     .x(d => xScale(d.year) + margins.left)
-    .y0(0)
-    .y1(d => yScale(d.value));
+    .y0(d => yScale(d.value_17))
+    .y1(d => yScale(d.value_83));
 
   xAxis = d3.axisBottom(xScale)
     .tickPadding(10)
@@ -167,8 +175,6 @@ function resize() {
   chartHeight = (chartWidth * chartAspectRatio) - margins.top - margins.bottom;
 
   svgHeight = Math.ceil(data.length / numChartsInRow) * (chartHeight + margins.top + margins.bottom);
-
-  area.y0(chartHeight)
 
   xScale.range([0, chartWidth]);
   yScale.range([chartHeight, margins.top]);

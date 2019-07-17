@@ -2,10 +2,23 @@
   width calc(100% - 100px)
   margin auto
   
+.wind-sm__header
+  margin 50px auto
+  &__title
+    color $text
+    font-family $sans
+    font-weight bold
+    margin auto
+    text-align center
+
 .wind-sm
   .x.axis
+    .domain
+      display none
+
     line
-      stroke $bg_80  
+      stroke $bg_80
+      stroke-opacity 0.8  
 
     text 
       fill $text
@@ -16,14 +29,15 @@
       
   .line
     stroke #e36f22
-    stroke-width 4
+    stroke-width 3
     fill none
     
   .fill
     fill #e36f22
-    opacity 0.3
+    opacity 0.5
     
   .sm-title
     fill $text
     font-family $sans
     font-size 14px
+    opacity 0.7
