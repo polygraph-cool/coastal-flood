@@ -5,6 +5,7 @@ import hurricanes from './hurricanes';
 import seaLevel from './sea-level';
 import windSmallMultiples from './winds-sm';
 import windLarge from './wind-large';
+import stormTracks from './storm-tracks';
 import './intro';
 
 // import footer from './footer';
@@ -22,6 +23,7 @@ function resize() {
     seaLevel.resize();
     windSmallMultiples.resize();
     windLarge.resize();
+    stormTracks.resize();
   }
 }
 
@@ -37,6 +39,7 @@ function init() {
   seaLevel.init();
   windSmallMultiples.init();
   windLarge.init();
+  stormTracks.init();
   // load footer stories
   // footer.init();
 }
