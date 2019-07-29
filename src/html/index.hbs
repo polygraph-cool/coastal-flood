@@ -29,6 +29,36 @@
 			</div>
 		{{/each}}
 	</section>
+
+	<section class="tidal-flood">
+		<div class="tidal-header">
+			<div class="tidal-video-wrap">
+				<video autoplay muted loop id="flooding-video">
+				  <source src="{{basepath}}assets/images/flood.mov" type="video/mp4">
+				</video>
+			</div>
+			<div class="tidal-title">
+				<h4>Part 1</h4>
+				<h2>A Rising Tide</h2>
+			</div>
+		</div>
+
+		<div class="tidal-intro">
+			{{#each copy.tidal-intro}}
+				{{#ifEquals this.type 'text'}}
+					<p class="text--centered">
+						{{this.value}}
+					</p>
+				{{/ifEquals}}
+
+				{{#ifEquals this.type 'chart'}}
+					<div class="chart-wrap--background" id="{{this.value}}">
+					</div>
+				{{/ifEquals}}
+		{{/each}}
+		</div>
+	</section>
+
 	<section class="background">
 		{{#each copy.background}}
 			{{#ifEquals this.type 'text'}}

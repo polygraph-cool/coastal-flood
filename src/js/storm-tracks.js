@@ -1,9 +1,12 @@
 import loadData from './load-data';
+import enterView from 'enter-view';
 
 let geoData, stormData;
 
 // Whether or not the chart has been animated in
 let isVisible = false;
+
+let animationInterval = 100;
 
 function coordsToGeoJson(coords) {
   coords.push(coords[0]); // last coord needs to be the same as the first to be valid
@@ -17,7 +20,7 @@ function coordsToGeoJson(coords) {
         }
 }
 
-function coordsToLineGeoJson(coords, strengths, name) {
+function coordsToLineGeoJson(coords, strengths, name, date) {
   return {
     "type": "Feature",
     "geometry": {
@@ -26,7 +29,8 @@ function coordsToLineGeoJson(coords, strengths, name) {
     },
     "properties": {
       "name": name,
-      "strengths": strengths
+      "strengths": strengths,
+      "date": date
     }
   }
 }
@@ -50,6 +54,9 @@ let width,
     height,
     projection,
     path,
+    colorScale,
+    yearRange,
+    currentAnimationYear,
     margins = {
       top: 20,
       right: 50,
@@ -67,6 +74,12 @@ let $container,
     $majorStormRects,
     $title;
 
+enterView({
+  selector: containerSelector,
+  enter: beginAnimation,
+  offset: 0.5,
+});
+
 function init() {
   console.log('init')
   loadData(['us_states_water_boundry.json', 'hurricane_tracks.json']).then(([d, s]) => {
@@ -82,12 +95,12 @@ function init() {
 }
 
 function parseStormData(d) {
-  console.log(d.data)
-
   let features = [];
   let currentCoords = [];
 
   let currentName;
+  let currentDate;
+  let currentYear;
   let points = [];
   let strengths = [];
 
@@ -101,8 +114,15 @@ function parseStormData(d) {
     // A line starting with a string like AL152018 (always an A) indicates a new storm
     if (cells[0][0] === 'A') {
       if (points.length > 0) {
-        features.push(coordsToLineGeoJson(points, strengths, currentName));
+        features.push(coordsToLineGeoJson(points, strengths, currentName, currentYear));
       }
+
+      let month = parseInt(cells[0].substring(2, 4));
+      let year = parseInt(cells[0].substring(4, 8));
+
+      currentDate = new Date(year, month, 1);
+
+      currentYear = year;
 
       currentName = cells[1];
       points = [];
@@ -126,12 +146,48 @@ function parseLon(str) {
   return -parseFloat(str.substring(0, str.length - 1));
 }
 
+function beginAnimation() {
+  window.requestAnimationFrame(animationStep);
+}
+
+function animationStep() {
+  $paths
+    .transition()
+    .duration(animationInterval)
+    .style('opacity', d => {
+    let year = d.properties.date;
+    if (year > currentAnimationYear) {
+      return 0;
+    } else {
+      return Math.max(0.1, (10 - (currentAnimationYear - year)) / 10);
+    }
+  })
+
+  currentAnimationYear ++;
+
+  if (currentAnimationYear <= yearRange[1]) {
+    setTimeout(() => {
+      window.requestAnimationFrame(animationStep);
+    }, animationInterval);
+  }
+}
+
 function constructChart() {
   projection = d3.geoAlbers()
      .translate([0, 0]) 
      .scale([100])
      .rotate([0, 0])
-     .parallels([29.5, 45.5]);  
+     .parallels([29.5, 45.5]); 
+
+  yearRange = d3.extent(stormData.map(d => d.properties.date));
+
+  currentAnimationYear = yearRange[0];
+
+  colorScale = d3.scaleLinear()
+    .domain(yearRange)
+    .range(["#ffff8c", "#"]);
+
+  //console.log(colorScale(1990))
 
   path = d3.geoPath()
     .projection(projection);  
@@ -148,6 +204,8 @@ function constructChart() {
     .data(stormData)
     .enter()
     .append('path')
+    .style('stroke', '#2c7bb6')//d => colorScale(d.properties.date))
+    .style('opacity', 0)
     .classed('storm-path', true);
 
   resize();
