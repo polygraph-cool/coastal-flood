@@ -17,6 +17,34 @@
 </head>
 
 <body>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		attribute vec3 second;
+
+	  uniform float pct;
+	  uniform float size;
+
+	  varying vec4 vColor;
+
+	  void main() {
+	    gl_PointSize = size;
+
+	    vec3 morphed = vec3( 0.0 , 0.0 , 0.0 );
+
+	    morphed += ( second - position ) * pct;
+
+			morphed += position;
+	    gl_Position = projectionMatrix * modelViewMatrix * vec4( morphed, 1.0 );
+	  }
+	</script>
+
+	<script id="fragmentShader" type="x-shader/x-fragment">
+	  uniform sampler2D texture;
+	  void main() {
+
+	    gl_FragColor = vec4(1.0,0.0,1.0,0.6);
+
+	  }
+	</script>
 
 	<section class="intro">
 		{{#each copy.intro}}
