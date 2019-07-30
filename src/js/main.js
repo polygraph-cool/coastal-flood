@@ -1,7 +1,6 @@
 /* global d3 */
 import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
-import hurricanes from './hurricanes';
 import seaLevel from './sea-level';
 import windSmallMultiples from './winds-sm';
 import windLarge from './wind-large';
@@ -19,7 +18,6 @@ function resize() {
   const width = $body.node().offsetWidth;
   if (previousWidth !== width) {
     previousWidth = width;
-    hurricanes.resize();
     seaLevel.resize();
     windSmallMultiples.resize();
     windLarge.resize();
@@ -35,7 +33,6 @@ function init() {
   // setup sticky header menu
   // setupStickyHeader();
   // kick off graphic code
-  hurricanes.init();
   seaLevel.init();
   windSmallMultiples.init();
   windLarge.init();
