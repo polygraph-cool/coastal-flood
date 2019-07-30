@@ -25,6 +25,11 @@
         "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
         "gid": "1943582586",
         "filepath": "src/assets/data/winds_county.json"
+      },
+      {
+        "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
+        "gid": "1090618285",
+        "filepath": "src/assets/data/sea_level_nj.json"
       }
     ]
   }
