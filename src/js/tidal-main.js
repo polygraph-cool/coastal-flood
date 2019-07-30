@@ -1,5 +1,10 @@
 import loadData from './load-data';
+import TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
+
+let tweenValues = {
+  morph: 0
+}
 
 // Number of rows of boxes;
 const BOX_ROWS = 9;
@@ -108,18 +113,8 @@ function constructScene() {
   light.position.set(10, 0, 25);
 
   scene.add(light);
-  
 
-  var geometry = new THREE.BoxGeometry( 20, 20, 20 );
-  var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-  var cube = new THREE.Mesh( geometry, material );
-  cube.position.x = 10;
-  cube.position.y = 10;
-  cube.position.z = 10;
-  scene.add( cube );
-  
-
-  renderScene();
+  beginRender();
 }
 
 function getInitialMorph() {
@@ -178,15 +173,40 @@ function createCanvas (color) {
   return canvas;
 }
 
+function beginRender() {
+  window.requestAnimationFrame(renderScene)
+}
+
 function renderScene() {
+  TWEEN.update();
+
   mesh.rotation.z = 0;
   mesh.rotation.y = 0;
   mesh.rotation.x = 0;
 
   renderer.render( scene, camera );
+
+  window.requestAnimationFrame(renderScene)
 }
 
+window.updateMorph = function(val) {
+  let newTweenValues = {
+    morph: val,
+  }
 
+  let transitionTween = new TWEEN
+    .Tween(tweenValues)
+    .to(newTweenValues, 1500)
+    .easing(TWEEN.Easing.Cubic.Out);
+
+  transitionTween.onUpdate(function(){
+    console.log(material)
+    material.uniforms.pct.value = tweenValues.morph;
+    material.uniforms.needsUpdate = true;
+  });
+
+  transitionTween.start();
+}
 
 function resize(render=true) {
   width = $wrap.getBoundingClientRect().width;
