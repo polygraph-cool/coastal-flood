@@ -64,10 +64,12 @@ function constructScene() {
 
   points = createPoints(nPoints);
 
-  poses = [mapLayout, ktGridLayout];
+  poses = [mapLayout, ktGridLayout, emGridLayout18];
   currentPose = 0;
 
   poses[currentPose](points);
+
+  const delayByIndex = 500 / points.length;
 
   let startTime = null;
 
@@ -113,9 +115,10 @@ function constructScene() {
         stageHeight: height,
         duration,
         startTime,
+        delayByIndex,
       });
 
-      if (time - startTime > duration / 1000) {
+      if (time - startTime > ((duration + 500) / 1000)) {
         frameLoop.cancel();
         startTime = null;
       }
@@ -156,6 +159,7 @@ function createDrawPoints(points) {
       attribute vec2 positionEnd;
       attribute vec3 colorStart;
       attribute vec3 colorEnd;
+      attribute float index;
 
       // variables to send to the fragment shader
       varying vec3 fragColor;
@@ -166,6 +170,7 @@ function createDrawPoints(points) {
       uniform float stageHeight;
       uniform float elapsed;
       uniform float duration;
+      uniform float delayByIndex;
 
       float easeCubicInOut(float t) {
         t *= 2.0;
@@ -193,15 +198,18 @@ function createDrawPoints(points) {
         // update the size of a point based on the prop pointWidth
         gl_PointSize = pointWidth;
 
+        float delay = delayByIndex * index;
+
         float t;
 
-        // drawing without animation, so show end state immediately
         if (duration == 0.0) {
           t = 1.0;
-
+        // still delaying before animating
+        } else if (elapsed < delay) {
+          t = 0.0;
         // otherwise we are animating, so use cubic easing
         } else {
-          t = easeCubicInOut(elapsed / duration);
+          t = easeCubicInOut((elapsed - delay) / duration);
         }
         
         vec2 position = mix(positionStart, positionEnd, t);
@@ -220,6 +228,7 @@ function createDrawPoints(points) {
       positionEnd: points.map(d => [d.tx, d.ty]),
       colorStart: points.map(d => d.colorStart),
       colorEnd: points.map(d => d.colorEnd),
+      index: points.map(d => d.id),
     },
 
     uniforms: {
@@ -233,7 +242,7 @@ function createDrawPoints(points) {
       // passing them in.
       stageWidth: regl.prop('stageWidth'),
       stageHeight: regl.prop('stageHeight'),
-
+      delayByIndex: regl.prop('delayByIndex'),
       duration: regl.prop('duration'),
       // time in ms since the prop startTime (i.e. time elapsed)
       // note that `time` is passed by regl whereas `startTime`
@@ -277,6 +286,14 @@ function mapLayout(points) {
 }
 
 function ktGridLayout(points) {
+  return genericGridLayout(points, floodedByYear.kt18)
+}
+
+function emGridLayout18(points) {
+  return genericGridLayout(points, floodedByYear.em18 + floodedByYear.kt18)
+}
+
+function genericGridLayout(points, cutoff) {
   const BOX_ROWS = 9;
   const BOX_COLS = 12;
   const N_DOTS_PER_BOX = 1000;
@@ -296,20 +313,20 @@ function ktGridLayout(points) {
     let minX = col * (BOX_SIDE + BOX_GAP);
     let maxX = minX + BOX_SIDE;
 
-    if (i < floodedByYear.kt18) {
+    if (i < cutoff) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = (Math.random() * (maxX - minX)) + minX;
       point.y = (Math.random() * (maxY - minY)) + minY;
       point.color = colors.darkGray;
     } else {
-      point.x = (Math.random() * (maxX - minX)) + minX;
-      point.y = (Math.random() * (maxY - minY)) + minY;
+      point.x = 0;
+      point.y = 0;
       point.color = colors.darkGray;
     }
 
     return point;
-  });
-}
+  })  
+} 
 
 function resize() {
 
