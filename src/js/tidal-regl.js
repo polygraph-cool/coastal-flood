@@ -64,7 +64,7 @@ function constructScene() {
 
   points = createPoints(nPoints);
 
-  poses = [mapLayout, ktGridLayout, emGridLayout18];
+  poses = [mapLayout, ktGridLayout, emGridLayout18, emGridLayout33];
   currentPose = 0;
 
   poses[currentPose](points);
@@ -293,6 +293,10 @@ function emGridLayout18(points) {
   return genericGridLayout(points, floodedByYear.em18 + floodedByYear.kt18)
 }
 
+function emGridLayout33(points) {
+  return genericGridLayout(points, points.length)
+}
+
 function genericGridLayout(points, cutoff) {
   const BOX_ROWS = 9;
   const BOX_COLS = 12;
@@ -317,11 +321,15 @@ function genericGridLayout(points, cutoff) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = (Math.random() * (maxX - minX)) + minX;
       point.y = (Math.random() * (maxY - minY)) + minY;
-      point.color = colors.darkGray;
     } else {
       point.x = 0;
       point.y = 0;
+    }
+
+    if (i < floodedByYear.kt18 + floodedByYear .em18) {
       point.color = colors.darkGray;
+    } else {
+      point.color = colors.red;
     }
 
     return point;
