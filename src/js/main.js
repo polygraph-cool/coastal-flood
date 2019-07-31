@@ -5,7 +5,7 @@ import seaLevel from './sea-level';
 import windSmallMultiples from './winds-sm';
 import windLarge from './wind-large';
 import stormTracks from './storm-tracks';
-import tidal from './tidal-main';
+import tidal from './tidal-regl';
 import './intro';
 
 // import footer from './footer';
@@ -22,7 +22,7 @@ function resize() {
     seaLevel.resize();
     windSmallMultiples.resize();
     windLarge.resize();
-    stormTracks.resize();
+    //stormTracks.resize();
     tidal.resize();
   }
 }
@@ -38,7 +38,7 @@ function init() {
   seaLevel.init();
   windSmallMultiples.init();
   windLarge.init();
-  stormTracks.init();
+  //stormTracks.init();
   tidal.init();
   // load footer stories
   // footer.init();
