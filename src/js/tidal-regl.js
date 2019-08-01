@@ -1,6 +1,36 @@
 import loadData from './load-data';
 import initREGL from 'regl'; 
+import scrollama from 'scrollama';
 import { sumArray } from './math-utils';
+
+const scroller = scrollama();
+
+let initialized = false;
+
+// setup the instance, pass callback functions
+scroller
+  .setup({
+    step: '.tidal-step'
+  })
+  .onStepEnter(({ element, index, direction }) => {
+    let poseNum = parseInt(element.dataset.pose);
+
+    d3.selectAll('.tidal-step')
+      .style('opacity', function() {
+        if (this === element) {
+          return 1;
+        } else {
+          return 0.3;
+        }
+      })
+
+    if (initialized && !isNaN(poseNum)) {
+      animateToPose(poseNum);
+    }
+  })
+  .onStepExit(response => {
+    // { element, index, direction }
+  });
 
 let floodingData, geoData, floodedByYear;
 
@@ -15,12 +45,16 @@ let width,
 
 let points,
   poses,
-  currentPose;
+  currentPose,
+  nPoints,
+  pointWidth;
 
 let colors = {
   darkGray: [0.5, 0.5, 0.5],
   red: [1, 0, 0]
 }
+
+let startTime = null;
 
 function init() {
   loadData(['tidal.json', 'flooded_properties.json']).then(([d, f]) => {
@@ -51,89 +85,89 @@ function constructScene() {
   width = $wrap.getBoundingClientRect().width;
   height = $wrap.getBoundingClientRect().width;
 
-  const duration = 1000;
-
-  const nPoints = sumArray(Object.values(floodedByYear));
-  const pointWidth = 2;
+  nPoints = sumArray(Object.values(floodedByYear));
+  pointWidth = 2;
 
   projection = d3.geoAlbers()
-    .translate([-2600, 500]) 
-    .scale([12500])
-    .rotate([90, 0])
-    .parallels([29.5, 45.5]);
+    .fitSize([width, height - 200], geoData);
 
   points = createPoints(nPoints);
 
-  poses = [mapLayout, ktGridLayout, emGridLayout18, emGridLayout33];
+  poses = [
+    mapLayout, 
+    ktGridLayout, 
+    emGridLayout18, 
+    emGridLayout33,
+    countyLayout
+  ];
+  
   currentPose = 0;
 
   poses[currentPose](points);
 
-  const delayByIndex = 500 / points.length;
-
-  let startTime = null;
-
-  function animateToPose(poseNum) {
-    currentPose = poseNum;
-    points.forEach(point => {
-      point.sx = point.tx,
-      point.sy = point.ty,
-      point.colorStart = point.colorEnd;
-    })
-
-    poses[currentPose](points);
-
-    points.forEach(point => {
-      point.tx = point.x,
-      point.ty = point.y,
-      point.colorEnd = point.color;
-    })
-
-    const drawPoints = createDrawPoints(points);
-
-    // start an animation loop
-    let startTime = null; // in seconds
-    const frameLoop = regl.frame(({ time }) => {
-      // keep track of start time so we can get time elapsed
-      // this is important since time doesn't reset when starting new animations
-      if (startTime === null) {
-        startTime = time;
-      }
-
-      // clear the buffer
-      regl.clear({
-        // background color (black)
-        color: [0, 0, 0, 1],
-        depth: 1,
-      });
-
-      // draw the points using our created regl func
-      // note that the arguments are available via `regl.prop`.
-      drawPoints({
-        pointWidth,
-        stageWidth: width,
-        stageHeight: height,
-        duration,
-        startTime,
-        delayByIndex,
-      });
-
-      if (time - startTime > ((duration + 500) / 1000)) {
-        frameLoop.cancel();
-        startTime = null;
-      }
-    });
-
-  }
-
   //const drawPoints = getDrawPoints(points);
 
-  animateToPose(0);
-  
-  document.body.addEventListener('click', () => {
-    console.log('click')
-    animateToPose(currentPose + 1);
+  animateToPose(0, 0);
+
+  initialized = true;
+}
+
+
+
+
+function animateToPose(poseNum, duration=1000) {
+  const delayByIndex = 600 / points.length;  
+
+  currentPose = poseNum;
+  points.forEach(point => {
+    point.sx = point.tx,
+    point.sy = point.ty,
+    point.colorStart = point.colorEnd;
   })
+
+  poses[currentPose](points);
+
+  points.forEach(point => {
+    point.tx = point.x,
+    point.ty = point.y,
+    point.colorEnd = point.color;
+  })
+
+  const drawPoints = createDrawPoints(points);
+
+  // start an animation loop
+  let startTime = null; // in seconds
+  const frameLoop = regl.frame(({ time }) => {
+    // keep track of start time so we can get time elapsed
+    // this is important since time doesn't reset when starting new animations
+    if (startTime === null) {
+      startTime = time;
+    }
+
+    // clear the buffer
+    regl.clear({
+      // background color (black)
+      color: [0, 0, 0, 0],
+      depth: 1,
+    });
+
+    // draw the points using our created regl func
+    // note that the arguments are available via `regl.prop`.
+    drawPoints({
+      pointWidth,
+      stageWidth: width,
+      stageHeight: height,
+      duration,
+      startTime,
+      delayByIndex,
+    });
+
+    if (time - startTime > ((duration + 600) / 1000)) {
+      frameLoop.cancel();
+      startTime = null;
+    }
+  });
+
 }
 
 function createDrawPoints(points) {
@@ -273,11 +307,11 @@ function mapLayout(points) {
     if (i < floodedByYear.kt18) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = x;
-      point.y = y;
+      point.y = y + 100;
       point.color = colors.darkGray;
     } else {
-      point.x = 0;
-      point.y = 0;
+      point.x = width + 5;
+      point.y = height / 2;
       point.color = colors.red;
     }
 
@@ -296,6 +330,9 @@ function emGridLayout18(points) {
 function emGridLayout33(points) {
   return genericGridLayout(points, points.length)
 }
+
+let previousMade = false;
+let previousPoints = [];
 
 function genericGridLayout(points, cutoff) {
   const BOX_ROWS = 9;
@@ -318,12 +355,20 @@ function genericGridLayout(points, cutoff) {
     let maxX = minX + BOX_SIDE;
 
     if (i < cutoff) {
-      let [x, y] = projection(geoData.features[i].geometry.coordinates);
-      point.x = (Math.random() * (maxX - minX)) + minX;
-      point.y = (Math.random() * (maxY - minY)) + minY;
+      if (i < previousPoints.length) {
+        point.x = previousPoints[i].x;
+        point.y = previousPoints[i].y;
+      } else {
+        let x = ((Math.random() * (maxX - minX)) + minX) + (width / 2) - (totalWidth / 2);
+        let y = ((Math.random() * (maxY - minY)) + minY) + (height / 2) - (totalHeight / 2);
+        point.x = x;
+        point.y = y;
+        previousPoints.push({x, y});
+      }
+      
     } else {
-      point.x = 0;
-      point.y = 0;
+      point.x = width + 5;
+      point.y = height / 2;
     }
 
     if (i < floodedByYear.kt18 + floodedByYear .em18) {
@@ -334,6 +379,43 @@ function genericGridLayout(points, cutoff) {
 
     return point;
   })  
+}
+
+function countyLayout(points) {
+  const padding = {top: 100, bottom: 100}
+
+  let sortedCounties = floodingData.sort((a, b) => +b.impactedem33 - +a.impactedem33);
+
+  const nCounties = floodingData.length;
+  const availableHeight = height - padding.top - padding.bottom;
+  const barHeight = availableHeight / nCounties;
+  const barGap = 10;
+  const totalWidth = width - padding.top - padding.bottom;
+  const longestCounty = +sortedCounties[0].impactedem33;
+
+  let currentCounty = 0;
+  let currentCountInCounty = 0;
+
+  return points.map((point, i) => {
+    let total = +sortedCounties[currentCounty].impactedem33;
+    
+    if (currentCountInCounty < total) {
+      currentCountInCounty += 1;
+    } else {
+      currentCounty += 1;
+      currentCountInCounty = 0;
+    }
+
+    let minX = padding.top;
+    let maxX = minX + (total / longestCounty) * totalWidth;
+    let minY = padding.top + barHeight * currentCounty;
+    let maxY = minY + (barHeight - barGap);
+
+    point.x = (Math.random() * (maxX - minX)) + minX;
+    point.y = (Math.random() * (maxY - minY)) + minY;
+    point.color = colors.darkGray;
+    return point;
+  }); 
 } 
 
 function resize() {
