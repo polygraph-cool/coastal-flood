@@ -26,6 +26,7 @@ scroller
 
     if (initialized && !isNaN(poseNum)) {
       animateToPose(poseNum);
+      showCountyLabels(poseNum === 4);
     }
   })
   .onStepExit(response => {
@@ -43,6 +44,9 @@ let width,
   height,
   projection;
 
+let $svg,
+  $labels;
+
 let points,
   poses,
   currentPose,
@@ -55,6 +59,25 @@ let colors = {
 }
 
 let startTime = null;
+
+const padding = {top: 100, bottom: 100, left: 300, right: 100}
+
+let sortedCounties,
+  nCounties,
+  availableHeight,
+  barHeight,
+  barGap,
+  totalWidth,
+  longestCounty;
+
+function showCountyLabels(visible) {
+  $labels.transition()
+    .duration(600)
+    .delay((d, i) => visible ? 400 + (i * 50) : 0)
+    .attr('x', visible ? padding.left - 20 : padding.left + 10)
+    .style('opacity', visible ? 1 : 0)
+    .style('pointer-events', visible ? 'all' : 'none')
+}
 
 function init() {
   loadData(['tidal.json', 'flooded_properties.json']).then(([d, f]) => {
@@ -76,6 +99,10 @@ function init() {
 
     floodingData = d;
     geoData = f; 
+
+    sortedCounties = floodingData.sort((a, b) => +b.impactedem33 - +a.impactedem33);
+    longestCounty = +sortedCounties[0].impactedem33;
+    nCounties = floodingData.length;
     //console.log((maxTotal / 1000) / BOX_ROWS);
     constructScene();
   })
@@ -83,7 +110,29 @@ function init() {
 
 function constructScene() {
   width = $wrap.getBoundingClientRect().width;
-  height = $wrap.getBoundingClientRect().width;
+  height = $wrap.getBoundingClientRect().height;
+
+  availableHeight = height - (padding.top + padding.bottom);
+  barHeight = availableHeight / nCounties;
+  barGap = 10;
+  totalWidth = width - padding.left - padding.right;
+
+  $svg = d3.select(selector).append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+  $labels = $svg.selectAll('.county-label')
+    .data(sortedCounties)
+    .enter()
+    .append('text')
+    .text(d => d.situs_county)
+    .classed('county-label', true)
+    .attr('text-anchor', 'end')
+    .attr('x', padding.left + 10)
+    .style('opacity', 0)
+    .style('pointer-events', 'none')
+    .attr('y', (d, i) => padding.top + (barHeight * i) + (barHeight / 2))
+    .style('fill', 'white');
 
   nPoints = sumArray(Object.values(floodedByYear));
   pointWidth = 2;
@@ -382,17 +431,6 @@ function genericGridLayout(points, cutoff) {
 }
 
 function countyLayout(points) {
-  const padding = {top: 100, bottom: 100}
-
-  let sortedCounties = floodingData.sort((a, b) => +b.impactedem33 - +a.impactedem33);
-
-  const nCounties = floodingData.length;
-  const availableHeight = height - padding.top - padding.bottom;
-  const barHeight = availableHeight / nCounties;
-  const barGap = 10;
-  const totalWidth = width - padding.top - padding.bottom;
-  const longestCounty = +sortedCounties[0].impactedem33;
-
   let currentCounty = 0;
   let currentCountInCounty = 0;
 
@@ -406,7 +444,7 @@ function countyLayout(points) {
       currentCountInCounty = 0;
     }
 
-    let minX = padding.top;
+    let minX = padding.left;
     let maxX = minX + (total / longestCounty) * totalWidth;
     let minY = padding.top + barHeight * currentCounty;
     let maxY = minY + (barHeight - barGap);
