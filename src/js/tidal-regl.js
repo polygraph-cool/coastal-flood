@@ -55,7 +55,7 @@ let points,
 
 let colors = {
   darkGray: [0.5, 0.5, 0.5],
-  red: [1, 0, 0]
+  red: [227 / 255, 111 / 255, 34 / 255]
 }
 
 let startTime = null;
@@ -80,6 +80,9 @@ function showCountyLabels(visible) {
 }
 
 function init() {
+  d3.selectAll('.tidal-step')
+      .style('opacity', 0.3)
+
   loadData(['tidal.json', 'flooded_properties.json']).then(([d, f]) => {
     let maxTotal = d.reduce((sum, e) => sum + parseFloat(e.impactedem33), 0);
 

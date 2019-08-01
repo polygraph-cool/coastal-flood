@@ -2,14 +2,6 @@ import loadData from './load-data';
 
 let data;
 
-d3.select('#sm-toggle')
-  .on('change', function() {
-   if (this.checked) {
-    switchToPct();
-   } else {
-    switchToTotal();
-   }
-  })
 
 // constants
 const containerSelector = '#tidal-values';
@@ -114,11 +106,11 @@ function constructChart() {
 
   $svg = $container.append('svg');
 
-  $charts = $svg.selectAll('.wind-sm')
+  $charts = $svg.selectAll('.tidal-sm')
     .data(data)
     .enter()
     .append('g')
-    .classed('wind-sm', true);
+    .classed('tidal-sm', true);
 
   $xAxisGroups = $charts.append('g')
     .classed('x axis', true);
