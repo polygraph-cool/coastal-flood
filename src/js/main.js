@@ -6,6 +6,7 @@ import windSmallMultiples from './winds-sm';
 import windLarge from './wind-large';
 import stormTracks from './storm-tracks';
 import tidal from './tidal-regl';
+import tidalValues from './tidal-values';
 import './intro';
 
 // import footer from './footer';
@@ -24,6 +25,7 @@ function resize() {
     windLarge.resize();
     //stormTracks.resize();
     tidal.resize();
+    tidalValues.resize();
   }
 }
 
@@ -40,6 +42,7 @@ function init() {
   windLarge.init();
   //stormTracks.init();
   tidal.init();
+  tidalValues.init();
   // load footer stories
   // footer.init();
 }
