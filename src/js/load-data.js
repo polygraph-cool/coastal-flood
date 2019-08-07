@@ -8,7 +8,7 @@
 
 function loadA(file) {
   return new Promise((resolve, reject) => {
-    d3.json(`assets/data/${file}`)
+    d3[file.endsWith('json') ? 'json' : 'csv'](`assets/data/${file}`)
       .then(result => {
         // clean here
         resolve(result);

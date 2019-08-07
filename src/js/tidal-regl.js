@@ -78,7 +78,7 @@ function showCountyLabels(visible) {
     .style('opacity', visible ? 1 : 0)
     .style('pointer-events', visible ? 'all' : 'none')
 }
-
+ 
 function init() {
   d3.selectAll('.tidal-step')
       .style('opacity', 0.3)
@@ -419,8 +419,8 @@ function genericGridLayout(points, cutoff) {
       }
       
     } else {
-      point.x = width + 5;
-      point.y = height / 2;
+      point.x = width + 5 + Math.random() * 500;
+      point.y = Math.random() * height;
     }
 
     if (i < floodedByYear.kt18 + floodedByYear .em18) {

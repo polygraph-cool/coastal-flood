@@ -24,3 +24,18 @@ scroller
 
 // setup resize event
 window.addEventListener('resize', scroller.resize);
+
+
+
+
+Array.prototype.map = function(fn) {
+  let arr = [...this]
+
+  let out = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    out.push(fn(arr[i], i, arr));
+  }
+
+  return out;
+}
