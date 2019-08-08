@@ -113,3 +113,28 @@ body
           
   @include can-toggle-branding; 
   @include can-toggle-appearance; 
+  
+.split-wrap
+  max-width 1200px
+  margin auto
+  padding 0 25px
+  display flex
+  align-items flex-start
+  align-content flex-start
+  
+  .split-chart
+    flex 1
+    position sticky
+    top 0
+    margin-right 80px
+    height 100vh
+    
+  .split-text
+    \width 350px
+    padding 40vh 0
+    
+    p
+      font-size 20px
+      font-family $serif
+      color $text
+      margin 200px 0

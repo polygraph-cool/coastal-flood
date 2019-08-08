@@ -8,6 +8,8 @@ import stormTracks from './storm-tracks';
 import tidal from './tidal-regl';
 import windMap from './wind-regl';
 import tidalValues from './tidal-values';
+import costs from './costs';
+import surge from './surge-regl';
 import './intro';
 
 // import footer from './footer';
@@ -27,6 +29,8 @@ function resize() {
     //stormTracks.resize();
     tidal.resize();
     tidalValues.resize();
+    costs.resize();
+    surge.resize();
   }
 }
 
@@ -42,9 +46,11 @@ function init() {
   windSmallMultiples.init();
   //windLarge.init();
   //stormTracks.init();
+  costs.init();
   tidal.init();
   tidalValues.init();
   windMap.init();
+  surge.init();
   // load footer stories
   // footer.init();
 }

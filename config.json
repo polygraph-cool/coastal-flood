@@ -35,6 +35,16 @@
         "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
         "gid": "1489873422",
         "filepath": "src/assets/data/tidal.json"
+      },
+      {
+        "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
+        "gid": "1759985003",
+        "filepath": "src/assets/data/costs.json"
+      },
+      {
+        "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
+        "gid": "1363899619",
+        "filepath": "src/assets/data/surge.json"
       }
     ]
   }

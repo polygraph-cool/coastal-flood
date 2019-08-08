@@ -123,6 +123,33 @@
 		</div>
 	</section>
 
+	<section class="costs">
+		<div class="tidal-header">
+			<div class="tidal-video-wrap">
+				<video autoplay muted loop id="flooding-video">
+				  <source src="{{basepath}}assets/images/flood.mov" type="video/mp4">
+				</video>
+			</div>
+			<div class="tidal-title">
+				<h4>Part 3</h4>
+				<h2>What Will It Cost?</h2>
+			</div>
+		</div>
+		<div class="split-wrap" id="costs-main">
+			<div class="split-chart" id="costs-main__chart">
+				<div id="costs-svg-wrap">
+				</div>
+			</div>
+			<div class="split-text" id="costs-main__text">
+				{{#each copy.tidal-main}}
+					<p class="text text--right cost-step" data-pose={{this.step}}>
+						{{this.text}}
+					</p>
+					{{/each}}
+			</div>
+		</div>
+	</section>
+
 
 	<script src='{{basepath}}assets/scripts/d3.v5.9.1.min.js'></script>
 	<script src='main.js?version={{timestamp}}' async></script>
