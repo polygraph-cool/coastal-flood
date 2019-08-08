@@ -1,4 +1,33 @@
 import loadData from './load-data';
+import scrollama from 'scrollama';
+
+const scroller = scrollama();
+
+scroller
+  .setup({
+    step: '.costs-step'
+  })
+  .onStepEnter(({ element, index, direction }) => {
+    let poseNum = parseInt(element.dataset.pose);
+
+    d3.selectAll('.costs-step')
+      .style('opacity', function() {
+        if (this === element) {
+          return 1;
+        } else {
+          return 0.3;
+        }
+      })
+
+    if(poseNum === 0) {
+      hide2050();
+    } else if (poseNum === 1) {
+      show2050();
+    }
+  })
+  .onStepExit(response => {
+    // { element, index, direction }
+  });
 
 let data;
 let sortedCounties;
@@ -55,6 +84,9 @@ function sortBy(data, column) {
 
 
 function constructChart() {
+   d3.selectAll('.costs-step')
+      .style('opacity', 0.3);
+
   highAndLowValues2020 = data.reduce((arr, e) => {
     arr = arr.concat([+e['damage_2020_0.83'], +e['damage_2020_0.17']]);
     return arr;

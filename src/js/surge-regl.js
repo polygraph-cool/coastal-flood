@@ -7,16 +7,17 @@ const scroller = scrollama();
 
 let initialized = false;
 
-/*
+let previousPoints = [];
+
 // setup the instance, pass callback functions
 scroller
   .setup({
-    step: '.wind-step'
+    step: '.surge-step'
   })
   .onStepEnter(({ element, index, direction }) => {
     let poseNum = parseInt(element.dataset.pose);
 
-    d3.selectAll('.wind-step')
+    d3.selectAll('.surge-step')
       .style('opacity', function() {
         if (this === element) {
           return 1;
@@ -33,7 +34,7 @@ scroller
   .onStepExit(response => {
     // { element, index, direction }
   });
-*/
+
 
 let data;
 
@@ -84,26 +85,11 @@ function showCountyLabels(visible) {
 }
  
 function init() {
- /* d3.selectAll('.tidal-step')
-      .style('opacity', 0.3)*/
+  d3.selectAll('.surge-step')
+      .style('opacity', 0.3)
 
   loadData(['surge.json']).then(([d]) => {
-  /*  let maxTotal = d.reduce((sum, e) => sum + parseFloat(e.impactedem33), 0);
-
-    let kt18 = sumArray(d, e => parseFloat(e.impactedkt18));
-    let em18 = sumArray(d, e => parseFloat(e.impactedem18)) - kt18;
-    let em23 = sumArray(d, e => parseFloat(e.impactedem23)) - (kt18 + em18);
-    let em28 = sumArray(d, e => parseFloat(e.impactedem28)) - (kt18 + em18 + em23);
-    let em33 = sumArray(d, e => parseFloat(e.impactedem33)) - (kt18 + em18 + em23 + em28);
-
-    floodedByYear = {
-      kt18,
-      em18,
-      em23,
-      em28,
-      em33
-    }
-*/
+ 
     //floodingData = d;
     data = d;
 
@@ -140,9 +126,9 @@ function constructScene() {
     .style('fill', 'white');
   */
 
-  nPoints = data.reduce((sum, e) => {
-    return sum + e.exposure_surge_2050;
-  }, 0);
+  nPoints = Math.floor(data.reduce((sum, e) => {
+    return sum + parseFloat(e.exposure_surge_2050);
+  }, 0));
 
   console.log(nPoints);
 
@@ -151,7 +137,8 @@ function constructScene() {
   points = createPoints(nPoints);
 
   poses = [
-    squareLayout
+    squareLayout2020,
+    squareLayout2050
   ];
   
   currentPose = 0;
@@ -364,8 +351,84 @@ function rgbStringToArr(str) {
   return str.split(',').map(e => parseInt(e) / 255)
 }
 
-function squareLayout(points) {
+function squareLayout2020(points) {
+  let total2020 = Math.floor(data.reduce((sum, e) => {
+    return sum + parseFloat(e.exposure_surge_2020)
+  }, 0));
 
+  let total2050 = Math.floor(data.reduce((sum, e) => {
+    return sum + parseFloat(e.exposure_surge_2050)
+  }, 0));
+
+  let padding = 100;
+  let constrainingDimension = Math.min(width, height);
+  let squareSide = constrainingDimension - (padding * 2);
+  let height2020 = squareSide * (total2020 / total2050);
+  let height2050 = squareSide - height2020;
+
+  let x1 = 0;
+  let x2 = padding + squareSide;
+  let y1 = padding + height2050;
+  let y2 = y1 + height2020;
+
+  return points.map((point, i) => {
+    if (i < total2020) {
+      point.x = point.sx || x1 + (Math.random() * (x2 - x1))
+      point.y = point.sy || y1 + (Math.random() * (y2 - y1))
+      point.color = colors.darkGray;
+      point.width = 3;
+
+    } else {
+      point.x =  x1 + (Math.random() * (x2 - x1));
+      point.y = 0 - 5 - (Math.random() * 100)
+      point.color = colors.red;
+      point.width = 3;
+    }
+
+    return point;
+  });
+}
+
+
+function squareLayout2050(points) {
+  let total2020 = Math.floor(data.reduce((sum, e) => {
+    return sum + parseFloat(e.exposure_surge_2020)
+  }, 0));
+
+  let total2050 = Math.floor(data.reduce((sum, e) => {
+    return sum + parseFloat(e.exposure_surge_2050)
+  }, 0));
+
+  let padding = 100;
+  let constrainingDimension = Math.min(width, height);
+  let squareSide = constrainingDimension - (padding * 2);
+  let height2020 = squareSide * (total2020 / total2050);
+  let height2050 = squareSide - height2020;
+
+  let x1 = 0;
+  let x2 = padding + squareSide;
+  let y1 = padding + height2050;
+  let y2 = y1 + height2020;
+
+  let y1_2050 = padding;
+  let y2_2050 = y1_2050 + height2050;
+
+  return points.map((point, i) => {
+    if (i < total2020) {
+      point.x = point.sx;
+      point.y = point.sy;
+      point.color = colors.darkGray;
+      point.width = 3;
+
+    } else {
+      point.x = point.sx || x1 + (Math.random() * (x2 - x1))
+      point.y = y1_2050 + (Math.random() * (y2_2050 - y1_2050))
+      point.color = colors.red;
+      point.width = 3;
+    }
+
+    return point;
+  });
 }
 
 function resize() {

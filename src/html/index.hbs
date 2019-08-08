@@ -86,6 +86,27 @@
 			</div>
 	</section>
 
+	<section class="story-section surge">
+		{{#each copy.surge-intro}}
+			<p class="text text--centered">
+				{{this.text}}
+			</p>
+		{{/each}}
+		<div class="split-wrap" id="surge-main">
+			<div class="split-chart" id="surge-main__chart">
+
+			</div>
+			<div class="split-text" id="surge-main__text">
+				{{#each copy.surge-chart}}
+					<p class="text text--right surge-step" data-pose={{this.step}}>
+						{{this.text}}
+					</p>
+				{{/each}}
+			</div>
+		</div>
+
+	</section>
+
 	<section class="story-section wind">
 		<div id="wind-main">
 			<div id="wind-main__chart">
@@ -135,17 +156,24 @@
 				<h2>What Will It Cost?</h2>
 			</div>
 		</div>
+		<div class="costs-intro">
+			{{#each copy.costs-intro}}
+				<p class="text text--centered">
+					{{this.text}}
+				</p>
+			{{/each}}
+		</div>
 		<div class="split-wrap" id="costs-main">
 			<div class="split-chart" id="costs-main__chart">
 				<div id="costs-svg-wrap">
 				</div>
 			</div>
 			<div class="split-text" id="costs-main__text">
-				{{#each copy.tidal-main}}
-					<p class="text text--right cost-step" data-pose={{this.step}}>
+				{{#each copy.costs-chart}}
+					<p class="text text--right costs-step" data-pose={{this.step}}>
 						{{this.text}}
 					</p>
-					{{/each}}
+				{{/each}}
 			</div>
 		</div>
 	</section>
