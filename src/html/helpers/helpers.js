@@ -15,5 +15,8 @@ module.exports = {
     return String(text)
       .replace(/\s+/g, '-')
       .toLowerCase();
+  },
+  inc: function(value, options) {
+    return parseInt(value) + 1;
   }
 };

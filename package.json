@@ -12,6 +12,7 @@
 		"cli-error-notifier": "2.1.0",
 		"enter-view": "^2.0.0",
 		"intersection-observer": "^0.7.0",
+		"load-data": "^0.2.1",
 		"lodash.debounce": "4.0.8",
 		"nouislider": "14.0.2",
 		"regl": "^1.3.11",

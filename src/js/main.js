@@ -10,7 +10,7 @@ import windMap from './wind-regl';
 import tidalValues from './tidal-values';
 import costs from './costs';
 import surge from './surge-regl';
-import './intro';
+import intro from './intro';
 
 // import footer from './footer';
 
@@ -51,6 +51,7 @@ function init() {
   tidalValues.init();
   windMap.init();
   surge.init();
+  intro.init();
   // load footer stories
   // footer.init();
 }

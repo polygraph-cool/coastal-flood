@@ -16,16 +16,51 @@
 </head>
 
 <body>
-	<section class="intro">
-		{{#each copy.intro}}
-			<div class="intro__step">
-				<p class="intro__step__text">
-					<mark>
-						{{this.value}}
-					</mark>
-				</p>
-			</div>
-		{{/each}}
+	<div id="nav">
+	</div>
+	<section class="intro-section">
+		<div class="intro">
+		</div>
+		<div class="intro-text">
+			<h1>
+				<span class="title-top">New Jersey’s</span>
+				<span class="title-bottom">Rising Coastal Risk</span>
+			</h1>
+			<h2>
+				{{copy.subhed}}
+			</h2>
+			{{#each copy.intro}}
+				<div class="intro__step"  data-step="{{this.step}}">
+					<p class="intro__step__text">
+							{{this.text}}	
+					</p>
+				</div>
+			{{/each}}
+		</div>
+		<div class="intro-text-centered">
+			{{#each copy.intro-centered}}
+				<div class="intro__step"  data-step="{{this.step}}">
+					<p class="intro__step__text">
+							{{this.text}}	
+					</p>
+				</div>
+			{{/each}}
+		</div>
+		<div class="intro-text-centered">
+			{{#each copy.intro-takeaways}}
+				<div class="intro__step"  data-step="{{this.step}}">
+					<h3 class="intro__step__header">
+						{{this.headline}}<span class="count">({{inc @index}}/{{../copy.intro-takeaways.length}})</span>
+					</h3>
+					<p class="intro__step__text">
+							{{this.text}}	
+					</p>
+					<button class="intro__step__link">
+						Read More
+					</button>
+				</div>
+			{{/each}}
+		</div>
 	</section>
 
 	<section class="tidal-flood">
