@@ -139,3 +139,40 @@ body
       font-family $serif
       color $text
       margin 200px 0
+      
+.split-header-wrap
+  width 100vw
+  height calc(100vh + 400px)
+  
+  .split-header-text
+    font-family big-caslon-fb, serif
+    color white
+    text-align center
+    opacity 1
+    
+    span
+      display block
+      
+      &.small
+        font-size 18px
+        font-family forma-djr-deck, sans-serif
+        text-transform uppercase
+        letter-spacing 2px
+        font-weight bold
+        opacity 0.6        
+        
+      &.large
+        margin-top -10px
+        font-size 80px
+  
+  .split-image-wrap
+    width 100vw
+    height 100vh
+    overflow hidden
+    position sticky
+    top 0
+    
+    image
+      min-height 100vw
+      min-width 100vh
+  

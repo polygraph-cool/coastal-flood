@@ -16,8 +16,6 @@
 </head>
 
 <body>
-	<div id="nav">
-	</div>
 	<section class="intro-section">
 		<div class="intro">
 		</div>
@@ -50,30 +48,33 @@
 			{{#each copy.intro-takeaways}}
 				<div class="intro__step"  data-step="{{this.step}}">
 					<h3 class="intro__step__header">
-						{{this.headline}}<span class="count">({{inc @index}}/{{../copy.intro-takeaways.length}})</span>
+						<span class="count"><span class="current">{{inc @index}}</span>/{{../copy.intro-takeaways.length}}</span>{{this.headline}}
 					</h3>
 					<p class="intro__step__text">
 							{{this.text}}	
 					</p>
-					<button class="intro__step__link">
-						Read More
+					<button data-target="#{{this.link}}" class="intro__step__link">
+						Learn More
+						<span>
+							<img inline src='arrow-right.svg' class="right-arrow">
+						</span>
 					</button>
 				</div>
 			{{/each}}
 		</div>
 	</section>
 
-	<section class="tidal-flood">
+	<section class="tidal-flood" id="tidal">
 		<div>
-			<div class="tidal-header">
-				<div class="tidal-video-wrap">
-					<video autoplay muted loop id="flooding-video">
-					  <source src="{{basepath}}assets/images/flood.mov" type="video/mp4">
-					</video>
+			<div class="tidal-header split-header-wrap">
+				<div class="split-image-wrap">
+					<img class="split-image" src="{{basepath}}assets/images/surge.jpeg"/>
 				</div>
-				<div class="tidal-title">
-					<h4>Part 1</h4>
-					<h2>A Rising Tide</h2>
+				<div class="split-header-text">
+					<h2>
+						<span class="small">Part 1</span>
+						<span class="large">A Rising Tide</span>
+					</h2>
 				</div>
 			</div>
 			

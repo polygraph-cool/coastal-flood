@@ -3,6 +3,18 @@ import scrollama from 'scrollama';
 import loadData from './load-data';
 const scroller = scrollama();
 
+d3.selectAll('.intro__step__link')
+  .on('click', function() {
+    let target = this.dataset.target;
+    console.log(target)
+    let top = d3.select(target).node().offsetTop;
+
+    window.scrollTo({
+      top: top,
+      behavior: 'smooth'
+    })
+  })
+
 let imageWidth = 3507;
 let imageHeight = 2480;
 
@@ -267,7 +279,7 @@ steps.finalExit = function(direction) {
   d3.select('.intro')
     .transition()
     .duration(1000)
-    .style('opacity', direction === 'down' ? 0 : 1)
+    .style('opacity', direction === 'down' ? 0.2 : 1)
 }
 
 function renderChart() {

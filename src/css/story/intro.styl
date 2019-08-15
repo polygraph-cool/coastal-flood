@@ -26,11 +26,24 @@
 		color white
 		border-radius 3px
 		margin-top 26px
-		transition opacity 0.2s ease
+		transition opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1), padding-right 0.3s cubic-bezier(0.215, 0.61, 0.355, 1)
+		position relative
 		
 		&:hover
 			opacity 1
+			padding-right 35px
+			
+			.right-arrow
+				opacity 1
+				right 5px
 		
+		.right-arrow
+			height 15px
+			position absolute
+			top 11px
+			right 0px
+			opacity 0
+			transition opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1), right 0.3s cubic-bezier(0.215, 0.61, 0.355, 1)
 
 	.intro__step__text
 		max-width 650px
@@ -45,13 +58,18 @@
 		font-size 30px
 		
 		.count
-			margin-left 20px
+			margin-right 20px
 			font-family forma-djr-deck, sans-serif
-			color white
-			opacity 0.3
-			font-size 18px
+			color rgba(255, 255, 255, 0.3)
+			font-size 21px
 			letter-spacing 1px
 			font-weight normal
+			width 60px
+			margin-left -50px
+			
+			.current
+				color rgba(255, 255, 255, 0.5)
+				font-weight bold
 
 .intro-text
 	position relative
