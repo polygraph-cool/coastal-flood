@@ -5,7 +5,7 @@ let data, njData;
 // constants
 const containerSelector = '#sea-level';
 const barPadding = 5;
-const chartTitle = 'Global Average Sea Level, 1990-2019'
+const chartTitle = 'High Tides Are Getting Higher'
 
 // Scales and measures
 let width,
@@ -100,7 +100,7 @@ function constructChart() {
     .classed('chart-title', true)
     .text(chartTitle)
     .attr('x', 0)
-    .attr('y', - margins.top + 19);
+    .attr('y', - margins.top + 25);
 
   resize();
 }

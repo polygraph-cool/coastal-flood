@@ -81,30 +81,26 @@ function showCountyLabels(visible) {
  
 function init() {
   d3.selectAll('.tidal-step')
-      .style('opacity', 0.3)
+    .style('opacity', 0.3)
 
   loadData(['tidal.json', 'flooded_properties.json']).then(([d, f]) => {
-    let maxTotal = d.reduce((sum, e) => sum + parseFloat(e.impactedem33), 0);
+    let maxTotal = d.reduce((sum, e) => sum + parseFloat(e.impacted_em18), 0);
 
-    let kt18 = sumArray(d, e => parseFloat(e.impactedkt18));
-    let em18 = sumArray(d, e => parseFloat(e.impactedem18)) - kt18;
-    let em23 = sumArray(d, e => parseFloat(e.impactedem23)) - (kt18 + em18);
-    let em28 = sumArray(d, e => parseFloat(e.impactedem28)) - (kt18 + em18 + em23);
-    let em33 = sumArray(d, e => parseFloat(e.impactedem33)) - (kt18 + em18 + em23 + em28);
+    let kt80 = sumArray(d, e => parseFloat(e.impacted_kt80));
+    let em80 = sumArray(d, e => parseFloat(e.impacted_em80)) - kt80;
+    let em18 = sumArray(d, e => parseFloat(e.impacted_em18)) - (kt80 + em80);
 
     floodedByYear = {
-      kt18,
-      em18,
-      em23,
-      em28,
-      em33
+      kt80,
+      em80,
+      em18
     }
 
     floodingData = d;
     geoData = f; 
 
-    sortedCounties = floodingData.sort((a, b) => +b.impactedem33 - +a.impactedem33);
-    longestCounty = +sortedCounties[0].impactedem33;
+    sortedCounties = floodingData.sort((a, b) => +b.impacted_em18 - +a.impacted_em18);
+    longestCounty = +sortedCounties[0].impacted_em18;
     nCounties = floodingData.length;
     //console.log((maxTotal / 1000) / BOX_ROWS);
     constructScene();
@@ -147,9 +143,9 @@ function constructScene() {
 
   poses = [
     mapLayout, 
-    ktGridLayout, 
-    emGridLayout18, 
-    emGridLayout33,
+    ktGridLayout80, 
+    emGridLayout80, 
+    emGridLayout18,
     countyLayout
   ];
   
@@ -356,7 +352,7 @@ function createPoints(nPoints) {
 function mapLayout(points) {
   return points.map((point, i) => {
     // If this is a property that floods during king tides...
-    if (i < floodedByYear.kt18) {
+    if (i < floodedByYear.kt80) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = x;
       point.y = y + 100;
@@ -371,15 +367,15 @@ function mapLayout(points) {
   });
 }
 
-function ktGridLayout(points) {
-  return genericGridLayout(points, floodedByYear.kt18)
+function ktGridLayout80(points) {
+  return genericGridLayout(points, floodedByYear.kt80)
+}
+
+function emGridLayout80(points) {
+  return genericGridLayout(points, floodedByYear.em80 + floodedByYear.kt80)
 }
 
 function emGridLayout18(points) {
-  return genericGridLayout(points, floodedByYear.em18 + floodedByYear.kt18)
-}
-
-function emGridLayout33(points) {
   return genericGridLayout(points, points.length)
 }
 
@@ -423,7 +419,7 @@ function genericGridLayout(points, cutoff) {
       point.y = Math.random() * height;
     }
 
-    if (i < floodedByYear.kt18 + floodedByYear .em18) {
+    if (i < floodedByYear.kt80 + floodedByYear.em80) {
       point.color = colors.darkGray;
     } else {
       point.color = colors.red;
@@ -438,7 +434,7 @@ function countyLayout(points) {
   let currentCountInCounty = 0;
 
   return points.map((point, i) => {
-    let total = +sortedCounties[currentCounty].impactedem33;
+    let total = +sortedCounties[currentCounty].impacted_em18;
     
     if (currentCountInCounty < total) {
       currentCountInCounty += 1;

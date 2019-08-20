@@ -142,13 +142,15 @@ body
       
 .split-header-wrap
   width 100vw
-  height calc(100vh + 400px)
+  height 200vh
+  pointer-events none
   
   .split-header-text
     font-family big-caslon-fb, serif
     color white
     text-align center
     opacity 1
+    pointer-events all
     
     span
       display block
@@ -171,6 +173,7 @@ body
     overflow hidden
     position sticky
     top 0
+    pointer-events none
     
     image
       min-height 100vw

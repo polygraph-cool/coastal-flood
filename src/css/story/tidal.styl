@@ -7,6 +7,7 @@
     
 .tidal-intro
   padding 100px 5px
+  margin-top -50vh
 
 .tidal-header
   position relative
@@ -54,6 +55,7 @@
   &__text
     width 450px
     padding 40vh 50px
+    z-index 999
     
     .text--right
       margin 150px 0
@@ -63,6 +65,16 @@
     height 100vh
     position sticky
     top 0  
+    
+    canvas
+      position relative
+    
+    img
+      height 100%
+      width auto
+      position absolute
+      left 50%
+      transform translateX(-50%)
     
     svg
       position absolute
