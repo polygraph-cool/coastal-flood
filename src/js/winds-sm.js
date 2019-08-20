@@ -51,6 +51,9 @@ let $container,
     $xAxisGroups,
     $yAxisGroups,
     $bars,
+    $whiskerTops,
+    $whiskerBottoms,
+    $whiskerBars,
     $chartBgs;
 
 function init() {
@@ -161,7 +164,7 @@ function constructChart() {
     .data(d => d.lineValues)
     .enter()
     .append('rect')
-    .style('opacity', d => d.year === 1985 ? 0.5 : 1)
+    .style('opacity', d => d.year === 1985 ? 0.5 : 0.8)
     .classed('bar', true);
 
   let format = d3.format(',.0f');
@@ -173,6 +176,24 @@ function constructChart() {
     .text(d => format(d.value_50))
     .attr('text-anchor', 'middle')
     .classed('value', true);
+
+  $whiskerTops = $charts.selectAll('.whisker-top')
+    .data(d => d.lineValues)
+    .enter()
+    .append('line')
+    .classed('whisker-top', true);
+
+  $whiskerBottoms = $charts.selectAll('.whisker-bottom')
+    .data(d => d.lineValues)
+    .enter()
+    .append('line')
+    .classed('whisker-bottom', true);
+
+  $whiskerBars = $charts.selectAll('.whisker-bar')
+    .data(d => d.lineValues)
+    .enter()
+    .append('line')
+    .classed('whisker-bar', true);
 
   /*$fills = $charts.selectAll('.fill')
     .data(d => [d.lineValues])
@@ -250,12 +271,33 @@ function renderChart(duration = 0) {
   $values
     .attr('x', d => xScale(d.year) + (xScale.bandwidth()))
     .attr('y', d => yScale(d.value_50) - 10)
+    .style('display', 'none')
 
   $chartBgs
     .attr('width', chartWidth + margins.left + margins.right - 20)
     .attr('height', chartHeight + margins.top + margins.bottom - 20)
     .attr('x', 10)
     .attr('y', -12)
+
+  let whiskerWidth = 20;
+
+  $whiskerTops
+    .attr('x1', d => xScale(d.year) + (xScale.bandwidth()) - (whiskerWidth / 2))
+    .attr('x2', d => xScale(d.year) + whiskerWidth + (xScale.bandwidth()) - (whiskerWidth / 2))
+    .attr('y1', d => yScale(d.value_83))
+    .attr('y2', d => yScale(d.value_83))
+
+  $whiskerBottoms
+    .attr('x1', d => xScale(d.year) + (xScale.bandwidth()) - (whiskerWidth / 2))
+    .attr('x2', d => xScale(d.year) + whiskerWidth + (xScale.bandwidth()) - (whiskerWidth / 2))
+    .attr('y1', d => yScale(d.value_17))
+    .attr('y2', d => yScale(d.value_17))
+
+  $whiskerBars
+    .attr('x1', d => xScale(d.year) + (xScale.bandwidth()))
+    .attr('x2', d => xScale(d.year) + (xScale.bandwidth()))
+    .attr('y1', d => yScale(d.value_17))
+    .attr('y2', d => yScale(d.value_83))
  /* $paths
     .transition()
     .duration(duration)
