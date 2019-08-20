@@ -30,6 +30,7 @@ let svgWidth,
     sortOrderPct,
     numChartsInRow,
     xAxis,
+    yAxis,
     currentSortOrder,
     margins = {
       top: 50,
@@ -46,7 +47,11 @@ let $container,
     $paths,
     $fills,
     $titles,
-    $xAxisGroups;
+    $values,
+    $xAxisGroups,
+    $yAxisGroups,
+    $bars,
+    $chartBgs;
 
 function init() {
   loadData(['winds_county.json', 'property_counts.json'])
@@ -81,15 +86,6 @@ function init() {
             'pct_17': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.17'] / total_props[county.situs_county],
             'pct_50': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.50'] / total_props[county.situs_county],
             'pct_83': county['expected_rcp85_hurricane_wind_exposure_2008_2018_q0.83'] / total_props[county.situs_county],
-          },
-          {
-            'year': 2050,
-            'value_17': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.17'],
-            'value_50': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50'],
-            'value_83': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83'],
-            'pct_17': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.17'] / total_props[county.situs_county],
-            'pct_50': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.50'] / total_props[county.situs_county],
-            'pct_83': county['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83'] / total_props[county.situs_county],
           }
         ]
       });
@@ -109,11 +105,11 @@ function init() {
 }
 
 function constructChart() {
-  xScale = d3.scalePoint()
-    .domain(data[0].lineValues.map(e => e.year).sort());
+  xScale = d3.scaleBand()
+    .domain(data[0].lineValues.map(e => e.year).sort((a, b) => a - b));
 
   yScale = d3.scaleLinear()
-    .domain([0, d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83']))]);
+    .domain([d3.max(data.map(e => e['expected_rcp85_hurricane_wind_exposure_2045_2055_q0.83'])), 0]);
 
   yScalePct = d3.scaleLinear()
     .domain([0, 0.05]);
@@ -126,6 +122,16 @@ function constructChart() {
     .x(d => xScale(d.year) + margins.left)
     .y0(d => yScale(d.value_17))
     .y1(d => yScale(d.value_83));
+
+  yAxis = d3.axisLeft(yScale)
+    .tickPadding(10)
+    .ticks(3)
+    .tickFormat(function (d) {
+      if ((d / 1000) >= 1) {
+        d = d / 1000 + "K";
+      }
+      return d;
+    })
 
   xAxis = d3.axisBottom(xScale)
     .tickPadding(10)
@@ -141,10 +147,34 @@ function constructChart() {
     .append('g')
     .classed('wind-sm', true);
 
+  $chartBgs = $charts.append('rect')
+    .classed('chart-bg', true)
+    .attr('rx', 5);
+
+  $yAxisGroups = $charts.append('g')
+    .classed('y axis', true);
+
   $xAxisGroups = $charts.append('g')
     .classed('x axis', true);
 
-  $fills = $charts.selectAll('.fill')
+  $bars = $charts.selectAll('.bar')
+    .data(d => d.lineValues)
+    .enter()
+    .append('rect')
+    .style('opacity', d => d.year === 1985 ? 0.5 : 1)
+    .classed('bar', true);
+
+  let format = d3.format(',.0f');
+
+  $values = $charts.selectAll('.value')
+    .data(d => d.lineValues)
+    .enter()
+    .append('text')
+    .text(d => format(d.value_50))
+    .attr('text-anchor', 'middle')
+    .classed('value', true);
+
+  /*$fills = $charts.selectAll('.fill')
     .data(d => [d.lineValues])
     .enter()
     .append('path')
@@ -154,7 +184,16 @@ function constructChart() {
     .data(d => [d.lineValues])
     .enter()
     .append('path')
-    .classed('line', true);
+    .classed('line', true);*/
+
+    /*
+  $leftBars = $charts.append('rect')
+    .classed('left-bar', true);
+
+
+  $rightBars = $charts.append('rect')
+    .classed('right-bar', true);
+    */
 
   $titles = $charts
     .append('text')
@@ -196,7 +235,28 @@ function renderChart(duration = 0) {
     .attr('transform', `translate(${margins.left}, ${chartHeight})`)
     .call(xAxis.tickSize(-(chartHeight - margins.top)));
 
-  $paths
+  $yAxisGroups
+    .transition()
+    .duration(duration)
+    .attr('transform', `translate(${margins.left}, 0)`)
+    .call(yAxis.tickSize(-(chartWidth)));
+
+  $bars
+    .attr('x', d => xScale(d.year) + (xScale.bandwidth() / 2))
+    .attr('y', d => yScale(d.value_50))
+    .attr('width', xScale.bandwidth())
+    .attr('height', d => chartHeight - yScale(d.value_50));
+
+  $values
+    .attr('x', d => xScale(d.year) + (xScale.bandwidth()))
+    .attr('y', d => yScale(d.value_50) - 10)
+
+  $chartBgs
+    .attr('width', chartWidth + margins.left + margins.right - 20)
+    .attr('height', chartHeight + margins.top + margins.bottom - 20)
+    .attr('x', 10)
+    .attr('y', -12)
+ /* $paths
     .transition()
     .duration(duration)
     .attr('d', d => line(d));
@@ -204,7 +264,7 @@ function renderChart(duration = 0) {
   $fills
     .transition()
     .duration(duration)
-    .attr('d', d => area(d));
+    .attr('d', d => area(d));*/
 }
 
 function resize() {
@@ -217,8 +277,8 @@ function resize() {
 
   svgHeight = Math.ceil(data.length / numChartsInRow) * (chartHeight + margins.top + margins.bottom);
 
-  xScale.range([0, chartWidth]);
-  yScale.range([chartHeight, margins.top]);
+  xScale.range([0, chartWidth]).padding(.1);
+  yScale.range([margins.top, chartHeight]);
   yScalePct.range([chartHeight, margins.top]);
 
   renderChart();
