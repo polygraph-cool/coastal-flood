@@ -10,6 +10,7 @@
 	"dependencies": {
 		"@tweenjs/tween.js": "^17.4.0",
 		"cli-error-notifier": "2.1.0",
+		"d3-textwrap": "^2.0.2",
 		"enter-view": "^2.0.0",
 		"intersection-observer": "^0.7.0",
 		"load-data": "^0.2.1",

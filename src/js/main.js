@@ -3,8 +3,6 @@ import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
 import seaLevel from './sea-level';
 import windSmallMultiples from './winds-sm';
-import windLarge from './wind-large';
-import stormTracks from './storm-tracks';
 import tidal from './tidal-regl';
 import windMap from './wind-regl';
 import tidalValues from './tidal-values';
@@ -29,7 +27,6 @@ function resize() {
    // windLarge.resize();
     //stormTracks.resize();
     tidal.resize();
-    tidalValues.resize();
     costs.resize();
     surge.resize();
   }
@@ -49,7 +46,6 @@ function init() {
   //stormTracks.init();
   costs.init();
   tidal.init();
-  tidalValues.init();
   windMap.init();
   surge.init();
   intro.init();

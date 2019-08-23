@@ -1,11 +1,88 @@
 import loadData from './load-data';
 import initREGL from 'regl'; 
 import scrollama from 'scrollama';
+import 'd3-textwrap'
 import { sumArray } from './math-utils';
 
 const scroller = scrollama();
 
 let initialized = false;
+
+let floodingData, geoData, floodedByYear;
+
+const selector = '#tidal-graphic';
+const $wrap = document.querySelector(selector);
+
+const regl = initREGL($wrap);
+
+let imageWidth = 5314;
+let imageHeight = 2480;
+
+let corners = {
+  tl: [-78.26638889, 42.21583333],
+  tr: [-70.00388889, 40.78222222],
+  bl: [-78.97888889, 39.33555556],
+  br: [-71.02222222, 37.95972222]
+}
+
+function coordsToGeoJson(coords) {
+  coords.push(coords[0]); // last coord needs to be the same as the first to be valid
+  return {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [ coords ]
+    },
+    "properties": { "id": "bbox" },
+  }
+}
+
+let basemapBounds = coordsToGeoJson([corners.tl, corners.tr, corners.br, corners.bl]);
+
+let width,
+  height,
+  projection,
+  path;
+
+let $svg,
+  $labels,
+  $boxLabel,
+  $boxLabelSquare,
+  $boxLabelLine,
+  $boxLabelText,
+  $orangeLabel,
+  $orangeLabelSquare,
+  $orangeLabelLine,
+  $orangeLabelText,
+  $ktHeader,
+  $emHeader,
+  $countyHeader = d3.select('#county-header'),
+  $basemap = d3.select('#tidal-graphic img').style('opacity', 0.8);
+
+let points,
+  poses,
+  currentPose,
+  nPoints,
+  pointWidth;
+
+let colors = {
+  darkGray: [0.5, 0.5, 0.5],
+  red: [227 / 255, 111 / 255, 34 / 255],
+  orange: [227 / 255, 111 / 255, 34 / 255]
+}
+
+let startTime = null;
+
+const padding = {top: 200, bottom: 100, left: 300, right: 100}
+
+let sortedCounties,
+  nCounties,
+  availableHeight,
+  barHeight,
+  barGap,
+  totalWidth,
+  longestCounty;
+
 
 // setup the instance, pass callback functions
 scroller
@@ -27,48 +104,183 @@ scroller
     if (initialized && !isNaN(poseNum)) {
       animateToPose(poseNum);
       showCountyLabels(poseNum === 4);
+
+      let key = `in_${poseNum}`;
+
+      console.log(key)
+
+      fns[key](direction);
     }
   })
-  .onStepExit(response => {
-    // { element, index, direction }
+  .onStepExit(({ element, index, direction }) => {
+     let poseNum = parseInt(element.dataset.pose);
+
+    if (initialized && !isNaN(poseNum)) {
+
+
+      let key = `out_${poseNum}`;
+
+      fns[key](direction);
+    }
   });
 
-let floodingData, geoData, floodedByYear;
+let fns = {
+  in_0: () => {
+    $orangeLabel
+      .transition()
+      .duration(400)
+      .style('opacity', 0)
 
-const selector = '#tidal-graphic';
-const $wrap = document.querySelector(selector);
+    $emHeader.transition()
+      .duration(400)
+      .style('opacity', 0)
 
-const regl = initREGL($wrap)
+    $ktHeader.transition()
+      .duration(400)
+      .style('opacity', 0)
 
-let width,
-  height,
-  projection;
+    $boxLabel
+        .transition()
+        .duration(400)
+        .style('opacity', 0)  
 
-let $svg,
-  $labels;
+    $basemap
+      .transition()
+      .duration(600)
+      .style('opacity', 0.7)
 
-let points,
-  poses,
-  currentPose,
-  nPoints,
-  pointWidth;
+    $countyHeader
+      .transition()
+      .duration(600)
+      .style('opacity', 0)
+  },
+  in_1: () => {
+    $orangeLabel
+      .transition()
+      .duration(400)
+      .style('opacity', 0)
 
-let colors = {
-  darkGray: [0.5, 0.5, 0.5],
-  red: [227 / 255, 111 / 255, 34 / 255]
+    $emHeader.transition()
+      .duration(400)
+      .style('opacity', 0)
+
+    $ktHeader.transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $boxLabel
+      .transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1) 
+
+    $basemap
+      .transition()
+      .duration(600)
+      .style('opacity', 0.2) 
+
+    $countyHeader
+      .transition()
+      .duration(600)
+      .style('opacity', 0)  
+  },
+  in_2: () => {
+    $orangeLabel
+      .transition()
+      .duration(400)
+      .style('opacity', 0)
+
+    $emHeader.transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $ktHeader.transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $boxLabel
+        .transition()
+        .duration(400)
+        .delay(700)
+        .style('opacity', 1)
+
+    $basemap
+      .transition()
+      .duration(600)
+      .style('opacity', 0.2) 
+
+    $countyHeader
+      .transition()
+      .duration(600)
+      .style('opacity', 0)
+  },
+  in_3: () => {
+    $orangeLabel
+      .transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $emHeader.transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $ktHeader.transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $boxLabel
+      .transition()
+      .duration(400)
+      .delay(700)
+      .style('opacity', 1)
+
+    $basemap
+      .transition()
+      .duration(600)
+      .style('opacity', 0.2) 
+
+    $countyHeader
+      .transition()
+      .duration(600)
+      .style('opacity', 0)
+  },
+  in_4: () => {
+    $orangeLabel
+      .transition()
+      .duration(400)
+      .style('opacity', 0)
+
+    $boxLabel
+      .transition()
+      .duration(400)
+      .style('opacity', 0)
+
+    $emHeader.transition()
+      .duration(400)
+      .style('opacity', 0)
+
+    $ktHeader.transition()
+      .duration(400)
+      .style('opacity', 0)
+
+    $basemap
+      .transition()
+      .duration(600)
+      .style('opacity', 0.2) 
+
+    $countyHeader
+      .transition()
+      .duration(600)
+      .delay(700)
+      .style('opacity', 1)
+  }
 }
-
-let startTime = null;
-
-const padding = {top: 100, bottom: 100, left: 300, right: 100}
-
-let sortedCounties,
-  nCounties,
-  availableHeight,
-  barHeight,
-  barGap,
-  totalWidth,
-  longestCounty;
 
 function showCountyLabels(visible) {
   $labels.transition()
@@ -86,22 +298,25 @@ function init() {
   loadData(['tidal.json', 'flooded_properties.json']).then(([d, f]) => {
     let maxTotal = d.reduce((sum, e) => sum + parseFloat(e.impacted_em18), 0);
 
+    let kt18 = sumArray(d, e => parseFloat(e.impacted_kt18));
+    let em18 = sumArray(d, e => parseFloat(e.impacted_em18));
     let kt80 = sumArray(d, e => parseFloat(e.impacted_kt80));
-    let em80 = sumArray(d, e => parseFloat(e.impacted_em80)) - kt80;
-    let em18 = sumArray(d, e => parseFloat(e.impacted_em18)) - (kt80 + em80);
+    let em80 = sumArray(d, e => parseFloat(e.impacted_em80));
+
 
     floodedByYear = {
-      kt80,
+      kt18,
       em80,
-      em18
+      em18,
+      kt80
     }
 
     floodingData = d;
     geoData = f; 
 
-    sortedCounties = floodingData.sort((a, b) => +b.impacted_em18 - +a.impacted_em18);
+    sortedCounties = floodingData.filter(e => parseInt(e.impacted_em18) > 5).sort((a, b) => +b.impacted_em18 - +a.impacted_em18);
     longestCounty = +sortedCounties[0].impacted_em18;
-    nCounties = floodingData.length;
+    nCounties = sortedCounties.length;
     //console.log((maxTotal / 1000) / BOX_ROWS);
     constructScene();
   })
@@ -133,19 +348,139 @@ function constructScene() {
     .attr('y', (d, i) => padding.top + (barHeight * i) + (barHeight / 2))
     .style('fill', 'white');
 
-  nPoints = sumArray(Object.values(floodedByYear));
+  const BOX_ROWS = 9;
+  //const BOX_COLS = 12;
+  const N_DOTS_PER_BOX = 1000;
+  const BOX_SIDE = 50;
+  const BOX_GAP = 5;
+
+  const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
+  const nBoxesEm18 = Math.ceil((floodedByYear.em18 - floodedByYear.kt18) / N_DOTS_PER_BOX);
+
+  const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
+  const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
+
+  const totalChartHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+  const totalChartWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+
+  $ktHeader = $svg.append('text')
+    .style('opacity', 0)
+    .classed('tidal-main-header', true)
+    .attr('y', () => {
+      return (height / 2) - (totalChartHeight / 2) - 100
+    })
+    .attr('x', () => {
+      return ((width / 2) - (totalChartWidth / 2)) + ((BOX_COLS_KT * (BOX_SIDE + BOX_GAP)) / 2)
+    })
+    .style('transform', 'translate(0, 0)');
+
+  $ktHeader.append('tspan').text('Properties at risk of')
+  $ktHeader.append('tspan').text('frequent flooding')
+    .attr('x', () => {
+      return ((width / 2) - (totalChartWidth / 2)) + ((BOX_COLS_KT * (BOX_SIDE + BOX_GAP)) / 2)
+    })
+    .attr('dy', 30)
+
+  $emHeader = $svg.append('text')
+    .style('opacity', 0)
+    .classed('tidal-main-header', true)
+    .attr('y', () => {
+      return (height / 2) - (totalChartHeight / 2) - 100
+    })
+    .attr('x', () => {
+      return ((width / 2) - (totalChartWidth / 2)) + ((BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) + ((BOX_COLS_EM * (BOX_SIDE + BOX_GAP)) / 2)
+    });
+
+  $emHeader.append('tspan').text('Additional properties at')
+  $emHeader.append('tspan').text('risk of annual flooding')
+    .attr('x', () => {
+      return ((width / 2) - (totalChartWidth / 2)) + ((BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) + ((BOX_COLS_EM * (BOX_SIDE + BOX_GAP)) / 2)
+    })
+    .attr('dy', 30)
+
+  $boxLabel = $svg.append('g')
+    .style('opacity', 0)
+    .attr('transform', `translate(${(width / 2) - (totalChartWidth / 2)}, ${(height / 2) - (totalChartHeight / 2)})`)
+
+  $boxLabelSquare = $boxLabel.append('rect')
+    .attr('width', BOX_SIDE)
+    .attr('height', BOX_SIDE)
+    .attr('x', 0)
+    .attr('y', 0)
+    .style('fill', 'transparent')
+    .style('stroke', 'white');
+
+  $boxLabelLine = $boxLabel.append('path')
+    .attr('d', () => {
+      return `M ${BOX_SIDE / 2} 0 l 0 -20 l 50 0`;
+    })
+    .style('fill', 'transparent')
+    .attr('stroke', 'white');
+
+  $boxLabelText = $boxLabel.append('text')
+    .text('1,000 properties')
+    .attr('x', (BOX_SIDE / 2) + 60)
+    .attr('y', -20)
+    .attr('text-anchor', 'start')
+    .attr('alignment-baseline', 'middle')
+    .classed('box-label-text', true);
+
+  $orangeLabel = $svg.append('g')
+    .classed('orange-label', true)
+    .style('opacity', 0)
+    .attr('transform', `translate(${
+      (width / 2) - (totalChartWidth / 2) + ((BOX_SIDE + BOX_GAP) * 3)
+    }, ${
+      (height / 2) - (totalChartHeight / 2) + ((BOX_ROWS - 1) * (BOX_SIDE + BOX_GAP))
+    })`)
+
+
+  $orangeLabelSquare = $orangeLabel.append('rect')
+    .attr('width', BOX_SIDE + 2)
+    .attr('height', BOX_SIDE + 2)
+    .attr('x', 0)
+    .attr('y', 0)
+    .style('fill', 'transparent');
+
+  $orangeLabelLine = $orangeLabel.append('path')
+    .attr('d', () => {
+      return `M ${BOX_SIDE / 2} ${BOX_SIDE + 2} l 0 20 l 50 0`;
+    })
+    .style('fill', 'transparent');
+
+  $orangeLabelLine = $orangeLabel.append('text')
+    .attr('x', (BOX_SIDE / 2) + 60)
+    .attr('y', BOX_SIDE + 28)
+    .attr('text-anchor', 'start')
+    .attr('alignment-baseline', 'middle')
+    .classed('box-label-text', true);
+
+  $orangeLabelLine.append('tspan')
+    .text('Properties newly exposed')
+
+   $orangeLabelLine.append('tspan')
+    .text('to flooding since 1985')
+    .attr('x', (BOX_SIDE / 2) + 60)
+    .attr('dy', 26)
+
+  nPoints = floodedByYear.em18;
   pointWidth = 2;
 
   projection = d3.geoAlbers()
     .fitSize([width, height - 200], geoData);
 
+  path = d3.geoPath()
+    .projection(projection); 
+
+  updateProjection();
+
   points = createPoints(nPoints);
 
   poses = [
     mapLayout, 
-    ktGridLayout80, 
-    emGridLayout80, 
-    emGridLayout18,
+    ktGridLayout18, 
+    emGridLayout18, 
+    emGridLayoutYearDiff,
     countyLayout
   ];
   
@@ -355,8 +690,8 @@ function mapLayout(points) {
     if (i < floodedByYear.kt80) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = x;
-      point.y = y + 100;
-      point.color = colors.darkGray;
+      point.y = y;
+      point.color = [1, 1, 1];
     } else {
       point.x = width + 5;
       point.y = height / 2;
@@ -367,39 +702,64 @@ function mapLayout(points) {
   });
 }
 
-function ktGridLayout80(points) {
-  return genericGridLayout(points, floodedByYear.kt80)
+function gray() {
+  return colors.darkGray;
 }
 
-function emGridLayout80(points) {
-  return genericGridLayout(points, floodedByYear.em80 + floodedByYear.kt80)
+function newFlooding(i) {
+  if (i > floodedByYear.kt18) {
+    i -= floodedByYear.kt18;
+    return i > (floodedByYear.em80 - floodedByYear.kt80) ? colors.orange : colors.darkGray;
+  } else {
+    return i > floodedByYear.kt80 ? colors.orange : colors.darkGray;
+  }
+}
+
+function ktGridLayout18(points) {
+  return genericGridLayout(points, floodedByYear.kt18, gray)
 }
 
 function emGridLayout18(points) {
-  return genericGridLayout(points, points.length)
+  return genericGridLayout(points, floodedByYear.em18, gray)
+}
+
+function emGridLayoutYearDiff(points) {
+  return genericGridLayout(points, floodedByYear.em18 + floodedByYear.kt18, newFlooding)
 }
 
 let previousMade = false;
 let previousPoints = [];
 
-function genericGridLayout(points, cutoff) {
+function genericGridLayout(points, cutoff, colorFn) {
   const BOX_ROWS = 9;
-  const BOX_COLS = 12;
+  //const BOX_COLS = 12;
   const N_DOTS_PER_BOX = 1000;
   const BOX_SIDE = 50;
   const BOX_GAP = 5;
+
+  const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
+  const nBoxesEm18 = Math.ceil((floodedByYear.em18 - floodedByYear.kt18) / N_DOTS_PER_BOX);
+
+  const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
+  const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
+
   const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
-  const totalWidth = (BOX_COLS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+  const totalWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
 
   return points.map((point, i) => {
-    let boxNum = Math.floor(i / N_DOTS_PER_BOX);
+    let BOX_COLS = i < floodedByYear.kt18 ? BOX_COLS_KT : BOX_COLS_EM;
+    let offset = i < floodedByYear.kt18 ? 0 : (BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP);
+
+    let trueI = i < floodedByYear.kt18 ? i : i - floodedByYear.kt18;
+
+    let boxNum = Math.floor(trueI / N_DOTS_PER_BOX);
     let col = Math.floor(boxNum / BOX_ROWS);
     let row = boxNum - (col * BOX_ROWS);
 
     let minY = row * (BOX_SIDE + BOX_GAP);
     let maxY = minY + BOX_SIDE;
 
-    let minX = col * (BOX_SIDE + BOX_GAP);
+    let minX = (col * (BOX_SIDE + BOX_GAP)) + offset;
     let maxX = minX + BOX_SIDE;
 
     if (i < cutoff) {
@@ -419,11 +779,7 @@ function genericGridLayout(points, cutoff) {
       point.y = Math.random() * height;
     }
 
-    if (i < floodedByYear.kt80 + floodedByYear.em80) {
-      point.color = colors.darkGray;
-    } else {
-      point.color = colors.red;
-    }
+    point.color = colorFn(i);
 
     return point;
   })  
@@ -443,20 +799,72 @@ function countyLayout(points) {
       currentCountInCounty = 0;
     }
 
-    let minX = padding.left;
-    let maxX = minX + (total / longestCounty) * totalWidth;
+    let pctIn1980s = +sortedCounties[currentCounty].impacted_em80 / +sortedCounties[currentCounty].impacted_em18;
+
+    let barMinX = padding.left;
+    let barMaxX = barMinX + (total / longestCounty) * totalWidth;
+    let barWidth = barMaxX - barMinX;
+  
+    let maxX, minX;
+  
+    if (currentCountInCounty < +sortedCounties[currentCounty].impacted_em80) {
+      minX = barMinX;
+      maxX = minX + (barWidth * pctIn1980s);
+
+    } else {
+      minX = barMinX + (barWidth * pctIn1980s);
+      maxX = minX + (barWidth * (1 - pctIn1980s))
+    }
+ 
     let minY = padding.top + barHeight * currentCounty;
     let maxY = minY + (barHeight - barGap);
 
     point.x = (Math.random() * (maxX - minX)) + minX;
     point.y = (Math.random() * (maxY - minY)) + minY;
-    point.color = colors.darkGray;
+
+    point.color = currentCountInCounty < +sortedCounties[currentCounty].impacted_em80 ? colors.darkGray : colors.orange;
     return point;
   }); 
 } 
 
-function resize() {
+function updateProjection() {
+  width = $wrap.getBoundingClientRect().width;
+  height = $wrap.getBoundingClientRect().height;
 
+  let trueHeight, trueWidth;
+
+  trueHeight = height;
+  trueWidth = height * (imageWidth / imageHeight);
+
+  var padding = 1;
+
+  let centroid = [-96, 37.5],//d3.geoCentroid(basemapBounds),
+  rotation_target = -centroid[0];
+
+  projection
+    .scale(1)
+    .center([0, centroid[1]])
+    .translate([0,0])
+    .rotate([rotation_target,0]);
+
+  let currentBounds = path.bounds(basemapBounds);
+  let currentWidth = currentBounds[1][0] - currentBounds[0][0];
+  let currentHeight = currentBounds[1][1] - currentBounds[0][1];
+
+  let s = padding / (currentWidth / trueWidth),
+      t = [
+        ((trueWidth - s * (currentBounds[1][0] + currentBounds[0][0])) / 2) - ((trueWidth - width) / 2), 
+        ((trueHeight - s * 1.01 * (currentBounds[1][1] + currentBounds[0][1])) / 2) - ((trueHeight - height) / 2) - 9
+      ];
+
+  projection
+    .center([0, centroid[1]])
+    .scale(s)
+    .translate(t);
+}
+
+function resize() {
+  
 }
 
 export default {

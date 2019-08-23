@@ -95,6 +95,8 @@
 			<div class="tidal-main">
 				<div class="tidal-main__graphic" id="tidal-graphic">
 					<image src="{{basepath}}assets/images/nj_wide.png" />
+					<h2 id="county-header">Properties at risk of <span class="tidal-toggle">annual flooding</span>
+					</h2>
 				</div>
 				<div class="tidal-main__text">
 					{{#each copy.tidal-main}}
@@ -104,23 +106,21 @@
 					{{/each}}
 				</div>
 			</div>
-			<div id="tidal-values">
-			</div>
 		</div>
 	</section>
 
 	<section class="hurricanes">
-		<div class="tidal-header">
-				<div class="tidal-video-wrap">
-					<video autoplay muted loop id="flooding-video">
-					  <source src="{{basepath}}assets/images/flood.mov" type="video/mp4">
-					</video>
-				</div>
-				<div class="tidal-title">
-					<h4>Part 2</h4>
-					<h2>Hurricanes</h2>
-				</div>
+		<div class="tidal-header split-header-wrap">
+			<div class="split-image-wrap">
+				<img class="split-image" src="{{basepath}}assets/images/wind.jpg"/>
 			</div>
+			<div class="split-header-text">
+				<h2>
+					<span class="small">Part 2</span>
+					<span class="large">Storms Brewing</span>
+				</h2>
+			</div>
+		</div>
 	</section>
 
 	<section class="story-section surge">
