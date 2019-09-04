@@ -28,7 +28,7 @@ scroller
 
     if (initialized && !isNaN(poseNum)) {
       animateToPose(poseNum);
-      showCountyLabels(poseNum === 4);
+      //showCountyLabels(poseNum === 4);
     }
   })
   .onStepExit(response => {
@@ -36,7 +36,7 @@ scroller
   });
 
 
-let data;
+let data, tidal, floodedByYear;
 
 const selector = '#surge-main__chart';
 const $wrap = document.querySelector(selector);
@@ -74,27 +74,31 @@ let sortedCounties,
   barGap,
   totalWidth,
   longestCounty;
-
-function showCountyLabels(visible) {
-  $labels.transition()
-    .duration(600)
-    .delay((d, i) => visible ? 400 + (i * 50) : 0)
-    .attr('x', visible ? padding.left - 20 : padding.left + 10)
-    .style('opacity', visible ? 1 : 0)
-    .style('pointer-events', visible ? 'all' : 'none')
-}
  
 function init() {
   d3.selectAll('.surge-step')
       .style('opacity', 0.3)
 
-  loadData(['surge.json']).then(([d]) => {
- 
+  loadData(['surge.json', 'tidal.json']).then(([d, t]) => {
+  console.log(d, t)
     //floodingData = d;
     data = d;
+    tidal = t;
+
+    let kt18 = sumArray(t, e => parseFloat(e.impacted_kt18));
+    let em18 = sumArray(t, e => parseFloat(e.impacted_em18));
+    let kt80 = sumArray(t, e => parseFloat(e.impacted_kt80));
+    let em80 = sumArray(t, e => parseFloat(e.impacted_em80));
 
 
-    console.log(data);
+    floodedByYear = {
+      kt18,
+      em80,
+      em18,
+      kt80
+    }
+
+    console.log(floodedByYear)
 
     constructScene();
   })
@@ -104,8 +108,8 @@ function constructScene() {
   width = $wrap.getBoundingClientRect().width;
   height = $wrap.getBoundingClientRect().height;
 
-  availableHeight = height - (padding.top + padding.bottom);
-  totalWidth = width - padding.left - padding.right;
+  availableHeight = height //- (padding.top + padding.bottom);
+  totalWidth = width //- padding.left - padding.right;
 
   /*
   $svg = d3.select(selector).append('svg')
@@ -126,28 +130,22 @@ function constructScene() {
     .style('fill', 'white');
   */
 
-  nPoints = Math.floor(data.reduce((sum, e) => {
-    return sum + parseFloat(e.exposure_surge_2050);
-  }, 0));
+  nPoints = data[0].buildings_flooded_surge_rp30_2013;
 
-  console.log(nPoints);
+  console.log(nPoints, floodedByYear)
 
   pointWidth = 2;
 
   points = createPoints(nPoints);
 
   poses = [
-    squareLayout2020,
-    squareLayout2050
+    emGridLayout18,
+    surgeGridLayout
   ];
   
   currentPose = 0;
 
   poses[currentPose](points);
-
-  document.body.addEventListener('click', function() {
-    animateToPose(currentPose + 1);
-  })
 
   //const drawPoints = getDrawPoints(points);
 
@@ -166,7 +164,6 @@ function animateToPose(poseNum, duration=1000) {
   points.forEach(point => {
     point.sx = point.tx,
     point.sy = point.ty,
-    point.pointWidthStart = point.pointWidthEnd;
     point.colorStart = point.colorEnd;
   })
 
@@ -175,11 +172,12 @@ function animateToPose(poseNum, duration=1000) {
   points.forEach(point => {
     point.tx = point.x,
     point.ty = point.y,
-    point.pointWidthEnd = point.width;
     point.colorEnd = point.color;
   })
 
   const drawPoints = createDrawPoints(points);
+
+  console.log(points)
 
   // start an animation loop
   let startTime = null; // in seconds
@@ -193,13 +191,16 @@ function animateToPose(poseNum, duration=1000) {
     // clear the buffer
     regl.clear({
       // background color (black)
-      color: [0, 0, 0, 0],
+      color: [1, 0, 0, 0],
       depth: 1,
     });
+
+    console.log(width, height)
 
     // draw the points using our created regl func
     // note that the arguments are available via `regl.prop`.
     drawPoints({
+      pointWidth: 2,
       stageWidth: width,
       stageHeight: height,
       duration,
@@ -216,6 +217,7 @@ function animateToPose(poseNum, duration=1000) {
 }
 
 function createDrawPoints(points) {
+
   return regl({
     frag: `
       // set the precision of floating point numbers
@@ -237,13 +239,12 @@ function createDrawPoints(points) {
       attribute vec3 colorStart;
       attribute vec3 colorEnd;
       attribute float index;
-      attribute float pointWidthStart;
-      attribute float pointWidthEnd;
 
       // variables to send to the fragment shader
       varying vec3 fragColor;
 
       // values that are the same for all vertices
+      uniform float pointWidth;
       uniform float stageWidth;
       uniform float stageHeight;
       uniform float elapsed;
@@ -273,7 +274,8 @@ function createDrawPoints(points) {
       }
 
       void main() {
-        // update the size of a point based on the prop pointWidt
+        // update the size of a point based on the prop pointWidth
+        gl_PointSize = pointWidth;
 
         float delay = delayByIndex * index;
 
@@ -288,8 +290,6 @@ function createDrawPoints(points) {
         } else {
           t = easeCubicInOut((elapsed - delay) / duration);
         }
-
-        gl_PointSize = mix(pointWidthStart, pointWidthEnd, t);
         
         vec2 position = mix(positionStart, positionEnd, t);
 
@@ -307,12 +307,14 @@ function createDrawPoints(points) {
       positionEnd: points.map(d => [d.tx, d.ty]),
       colorStart: points.map(d => d.colorStart),
       colorEnd: points.map(d => d.colorEnd),
-      pointWidthStart: points.map(d => d.pointWidthStart),
-      pointWidthEnd: points.map(d => d.pointWidthEnd),
       index: points.map(d => d.id),
     },
 
     uniforms: {
+      // by using `regl.prop` to pass these in, we can specify
+      // them as arguments to our drawPoints function
+      pointWidth: regl.prop('pointWidth'),
+
       // regl actually provides these as viewportWidth and
       // viewportHeight but I am using these outside and I want
       // to ensure they are the same numbers, so I am explicitly
@@ -324,7 +326,9 @@ function createDrawPoints(points) {
       // time in ms since the prop startTime (i.e. time elapsed)
       // note that `time` is passed by regl whereas `startTime`
       // is a prop passed to the drawPoints function.
-      elapsed: ({ time }, { startTime = 0 }) => (time - startTime) * 1000,
+      elapsed: ({ time }, { startTime = 0 }) => {
+        return (time - startTime) * 1000
+      },
     },
 
     // specify the number of points to draw
@@ -340,7 +344,6 @@ function createPoints(nPoints) {
     id: i,
     tx: 0,
     ty: 0,
-    pointWidthEnd: 0,
     colorEnd: [0, 0, 0]
   }));
 }
@@ -389,6 +392,72 @@ function squareLayout2020(points) {
   });
 }
 
+function gray() {
+  return colors.darkGray;
+}
+
+function emGridLayout18(points) {
+  return genericGridLayout(points, floodedByYear.em18, gray);
+}
+
+function surgeGridLayout(points) {
+  return genericGridLayout(points, points.length, gray);
+}
+
+function genericGridLayout(points, cutoff, colorFn) {
+  const BOX_ROWS = 9;
+  //const BOX_COLS = 12;
+  const N_DOTS_PER_BOX = 1000;
+  const BOX_SIDE = 50;
+  const BOX_GAP = 5;
+
+  const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
+  const nBoxesEm18 = Math.ceil((floodedByYear.em18 - floodedByYear.kt18) / N_DOTS_PER_BOX);
+
+  const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
+  const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
+
+  const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+  const totalWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+
+  return points.map((point, i) => {
+    let BOX_COLS = i < floodedByYear.kt18 ? BOX_COLS_KT : BOX_COLS_EM;
+    let offset = i < floodedByYear.kt18 ? 0 : (BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP);
+
+    let trueI = i < floodedByYear.kt18 ? i : i - floodedByYear.kt18;
+
+    let boxNum = Math.floor(trueI / N_DOTS_PER_BOX);
+    let col = Math.floor(boxNum / BOX_ROWS);
+    let row = boxNum - (col * BOX_ROWS);
+
+    let minY = row * (BOX_SIDE + BOX_GAP);
+    let maxY = minY + BOX_SIDE;
+
+    let minX = (col * (BOX_SIDE + BOX_GAP)) + offset;
+    let maxX = minX + BOX_SIDE;
+
+    if (i < cutoff) {
+      if (i < previousPoints.length) {
+        point.x = previousPoints[i].x;
+        point.y = previousPoints[i].y;
+      } else {
+        let x = ((Math.random() * (maxX - minX)) + minX) + (width / 2) - (totalWidth / 2);
+        let y = ((Math.random() * (maxY - minY)) + minY) + (height / 2) - (totalHeight / 2);
+        point.x = x;
+        point.y = y;
+        previousPoints.push({x, y});
+      }
+    } else {
+      print('out of cutoff')
+      point.x = width + 5 + Math.random() * 500;
+      point.y = Math.random() * height;
+    }
+
+    point.color = [1,1,1]//colorFn(i);
+
+    return point;
+  })  
+}
 
 function squareLayout2050(points) {
   let total2020 = Math.floor(data.reduce((sum, e) => {

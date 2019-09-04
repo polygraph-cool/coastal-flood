@@ -14,7 +14,39 @@
     svg
       overflow visible
       
-      .county-label
-        font-family $sans
+      .min-value, .max-value
+        font-family forma-djr-deck
         fill $text
-        font-size 14px
+        alignment-baseline middle
+        stroke #0d0d11
+        paint-order stroke
+        stroke-width 5
+        
+        tspan
+          alignment-baseline middle
+          
+          &.value-label
+            fill #7f7f82
+            font-size 12px
+        
+      .min-value
+        text-anchor end
+        
+      .max-value
+        text-anchor start
+      
+      .costs-hover-rect
+        cursor crosshair
+
+      .county-label
+        font-family forma-djr-deck, sans-serif
+        fill $text
+        font-size 16px
+        font-weight bold
+        letter-spacing 0.5px
+        alignment-baseline middle
+        
+      .x.axis line
+        stroke $text
+        stroke-opacity 0.3
+        stroke-dasharray 3

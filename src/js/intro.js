@@ -321,9 +321,6 @@ function resize() {
     trueHeight = width / (imageWidth / imageHeight);
   }
 
-  console.log('height', height);
-  console.log('trueHeight', trueHeight);
-
   var padding = 1;
 
   let centroid = [-96, 37.5],//d3.geoCentroid(basemapBounds),

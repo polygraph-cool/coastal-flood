@@ -45,6 +45,11 @@
         "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
         "gid": "1363899619",
         "filepath": "src/assets/data/surge.json"
+      },
+      {
+        "id": "1xjpogDweMwI4vSATsV-ibxQs8ypFUW-VQK30D-lV28w",
+        "gid": "251568614",
+        "filepath": "src/assets/data/costs_gdp.json"
       }
     ]
   }

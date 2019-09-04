@@ -2,7 +2,6 @@
 import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
 import seaLevel from './sea-level';
-import windSmallMultiples from './winds-sm';
 import tidal from './tidal-regl';
 import windMap from './wind-regl';
 import tidalValues from './tidal-values';
@@ -23,7 +22,6 @@ function resize() {
   if (previousWidth !== width) {
     previousWidth = width;
     seaLevel.resize();
-    windSmallMultiples.resize();
    // windLarge.resize();
     //stormTracks.resize();
     tidal.resize();
@@ -41,7 +39,6 @@ function init() {
   // setupStickyHeader();
   // kick off graphic code
   seaLevel.init();
-  windSmallMultiples.init();
   //windLarge.init();
   //stormTracks.init();
   costs.init();

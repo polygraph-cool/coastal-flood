@@ -84,45 +84,6 @@ let sortedCounties,
   longestCounty;
 
 
-// setup the instance, pass callback functions
-scroller
-  .setup({
-    step: '.tidal-step'
-  })
-  .onStepEnter(({ element, index, direction }) => {
-    let poseNum = parseInt(element.dataset.pose);
-
-    d3.selectAll('.tidal-step')
-      .style('opacity', function() {
-        if (this === element) {
-          return 1;
-        } else {
-          return 0.3;
-        }
-      })
-
-    if (initialized && !isNaN(poseNum)) {
-      animateToPose(poseNum);
-      showCountyLabels(poseNum === 4);
-
-      let key = `in_${poseNum}`;
-
-      console.log(key)
-
-      fns[key](direction);
-    }
-  })
-  .onStepExit(({ element, index, direction }) => {
-     let poseNum = parseInt(element.dataset.pose);
-
-    if (initialized && !isNaN(poseNum)) {
-
-
-      let key = `out_${poseNum}`;
-
-      fns[key](direction);
-    }
-  });
 
 let fns = {
   in_0: () => {
@@ -282,6 +243,47 @@ let fns = {
   }
 }
 
+
+// setup the instance, pass callback functions
+scroller
+  .setup({
+    step: '.tidal-step'
+  })
+  .onStepEnter(({ element, index, direction }) => {
+    let poseNum = parseInt(element.dataset.pose);
+
+    d3.selectAll('.tidal-step')
+      .style('opacity', function() {
+        if (this === element) {
+          return 1;
+        } else {
+          return 0.3;
+        }
+      })
+
+    if (initialized && !isNaN(poseNum)) {
+      animateToPose(poseNum);
+      showCountyLabels(poseNum === 4);
+
+      let key = `in_${poseNum}`;
+
+      console.log(key)
+
+      fns[key](direction);
+    }
+  })
+  .onStepExit(({ element, index, direction }) => {
+     let poseNum = parseInt(element.dataset.pose);
+
+    if (initialized && !isNaN(poseNum)) {
+
+
+      let key = `out_${poseNum}`;
+
+      fns[key](direction);
+    }
+  });
+
 function showCountyLabels(visible) {
   $labels.transition()
     .duration(600)
@@ -310,6 +312,8 @@ function init() {
       em18,
       kt80
     }
+
+    console.log(floodedByYear)
 
     floodingData = d;
     geoData = f; 
@@ -464,6 +468,7 @@ function constructScene() {
     .attr('dy', 26)
 
   nPoints = floodedByYear.em18;
+
   pointWidth = 2;
 
   projection = d3.geoAlbers()
@@ -554,7 +559,6 @@ function animateToPose(poseNum, duration=1000) {
 }
 
 function createDrawPoints(points) {
-  console.log(regl, regl.prop)
 
   return regl({
     frag: `
