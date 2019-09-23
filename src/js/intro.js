@@ -323,14 +323,14 @@ function resize() {
 
   var padding = 1;
 
-  let centroid = [-96, 37.5],//d3.geoCentroid(basemapBounds),
-    rotation_target = -centroid[0];
+  let centroid = [-96, 37.5]
+  let rotation_target = -centroid[0];
 
-    projection
-      .scale(1)
-      .center([0, centroid[1]])
-      .translate([0,0])
-      .rotate([rotation_target,0]);
+  projection
+    .scale(1)
+    .center([0, centroid[1]])
+    .translate([0,0])
+    .rotate([rotation_target,0]);
 
     let currentBounds = path.bounds(basemapBounds);
     let currentWidth = currentBounds[1][0] - currentBounds[0][0];

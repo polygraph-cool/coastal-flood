@@ -8,6 +8,8 @@ const scroller = scrollama();
 
 let initialized = false;
 
+let barChartView;
+
 let floodingData, geoData, floodedByYear;
 
 const selector = '#tidal-graphic';
@@ -24,6 +26,17 @@ let corners = {
   bl: [-78.97888889, 39.33555556],
   br: [-71.02222222, 37.95972222]
 }
+
+let toggle = d3.select('#tidal-toggle');
+
+barChartView = toggle.property('value');
+
+toggle.on('change', function(e) {
+    barChartView = d3.select(this).property('value');
+    animateToPose(4);
+  });
+
+console.log(toggle)
 
 function coordsToGeoJson(coords) {
   coords.push(coords[0]); // last coord needs to be the same as the first to be valid
@@ -66,9 +79,9 @@ let points,
   pointWidth;
 
 let colors = {
-  darkGray: [0.5, 0.5, 0.5],
-  red: [227 / 255, 111 / 255, 34 / 255],
-  orange: [227 / 255, 111 / 255, 34 / 255]
+  darkGray: [0.5, 0.5, 0.5, 0.7],
+  red: [227 / 255, 111 / 255, 34 / 255, 0.7],
+  orange: [227 / 255, 111 / 255, 34 / 255, 0.7]
 }
 
 let startTime = null;
@@ -566,24 +579,24 @@ function createDrawPoints(points) {
       precision highp float;
 
       // this value is populated by the vertex shader
-      varying vec3 fragColor;
+      varying vec4 fragColor;
 
       void main() {
         // gl_FragColor is a special variable that holds the color
         // of a pixel
-        gl_FragColor = vec4(fragColor, 1);
+        gl_FragColor = fragColor;
       }
     `,
     vert: `
       // per vertex attributes
       attribute vec2 positionStart;
       attribute vec2 positionEnd;
-      attribute vec3 colorStart;
-      attribute vec3 colorEnd;
+      attribute vec4 colorStart;
+      attribute vec4 colorEnd;
       attribute float index;
 
       // variables to send to the fragment shader
-      varying vec3 fragColor;
+      varying vec4 fragColor;
 
       // values that are the same for all vertices
       uniform float pointWidth;
@@ -670,6 +683,16 @@ function createDrawPoints(points) {
       // is a prop passed to the drawPoints function.
       elapsed: ({ time }, { startTime = 0 }) => (time - startTime) * 1000,
     },
+    blend: {
+      enable: true,
+      func: {
+        srcRGB: 'src alpha',
+        srcAlpha: 'src alpha',
+        dstRGB: 'one minus src alpha',
+        dstAlpha: 'one minus src alpha',
+      },
+    },
+    depth: { enable: false },
 
     // specify the number of points to draw
     count: points.length,
@@ -684,7 +707,7 @@ function createPoints(nPoints) {
     id: i,
     tx: 0,
     ty: 0,
-    colorEnd: [0, 0, 0]
+    colorEnd: [0, 0, 0, 0]
   }));
 }
 
@@ -695,7 +718,7 @@ function mapLayout(points) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = x;
       point.y = y;
-      point.color = [1, 1, 1];
+      point.color = [1, 1, 1, 0.78];
     } else {
       point.x = width + 5;
       point.y = height / 2;
@@ -790,6 +813,15 @@ function genericGridLayout(points, cutoff, colorFn) {
 }
 
 function countyLayout(points) {
+  console.log(barChartView)
+  if (barChartView === 'annual flooding') {
+    return annualCountyLayout(points);
+  } else if (barChartView === 'frequent flooding') {
+    return frequentCountyLayout(points);
+  }
+} 
+
+function annualCountyLayout(points) {
   let currentCounty = 0;
   let currentCountInCounty = 0;
 
@@ -829,7 +861,69 @@ function countyLayout(points) {
     point.color = currentCountInCounty < +sortedCounties[currentCounty].impacted_em80 ? colors.darkGray : colors.orange;
     return point;
   }); 
-} 
+}
+
+function frequentCountyLayout(points) {
+  let currentCounty = 0;
+  let currentCountInCounty = 0;
+
+  console.log(sortedCounties)
+
+  return points.map((point, i) => {
+    let total = +sortedCounties[currentCounty].impacted_em18;
+    
+    let {
+      impacted_kt18,
+      impacted_kt80,
+      impacted_em80,
+      impacted_em18
+    } = sortedCounties[currentCounty];
+
+    if (currentCountInCounty < total) {
+      currentCountInCounty += 1;
+    } else {
+      currentCounty += 1;
+      currentCountInCounty = 0;
+    }
+
+    let pctIn1980s = +impacted_kt80 / +impacted_kt18;
+
+    let barMinX = padding.left;
+    let barMaxX = barMinX + (total / longestCounty) * totalWidth;
+    let barWidth = (barMaxX - barMinX) * (+impacted_kt18 / +impacted_em18);
+  
+    let maxX, minX, color;
+  
+    if (currentCountInCounty < +impacted_kt80) {
+      minX = barMinX;
+      maxX = minX + (barWidth * pctIn1980s);
+      color = colors.darkGray;
+    } else if (currentCountInCounty < +impacted_em80) {
+      minX = point.x;
+      maxX = point.x;
+      color = [0, 0, 0, 0]
+    } else if (
+      currentCountInCounty - (+impacted_em80) + (+impacted_kt80) < +impacted_kt18
+    ) {
+      minX = barMinX + (barWidth * pctIn1980s);
+      maxX = minX + (barWidth * (1 - pctIn1980s));
+      color = colors.orange;
+    } else {
+      minX = point.x;
+      maxX = point.x;
+      color = [0, 0, 0, 0]
+    }
+ 
+    let minY = padding.top + barHeight * currentCounty;
+    let maxY = minY + (barHeight - barGap);
+
+    point.x = (Math.random() * (maxX - minX)) + minX;
+    point.y = (Math.random() * (maxY - minY)) + minY;
+
+    point.color = color;
+    return point;
+  }); 
+}
 
 function updateProjection() {
   width = $wrap.getBoundingClientRect().width;

@@ -1,11 +1,17 @@
 import loadData from './load-data';
+import enterView from 'enter-view';
 
 let data, njData;
 
 // constants
 const containerSelector = '#sea-level';
 const barPadding = 5;
-const chartTitle = 'High Tides Are Getting Higher'
+const chartTitle = 'High Tides Are Getting Higher';
+
+enterView({
+  selector: containerSelector,
+  enter: showDots
+});
 
 // Scales and measures
 let width,
@@ -14,6 +20,7 @@ let width,
     xScale,
     yScale,
     line,
+    meanLine,
     xAxis,
     yAxis,
     margins = {
@@ -28,6 +35,7 @@ let $container,
     $svg,
     $g,
     $path,
+    $dots,
     $njPath,
     $xAxisGroup,
     $yAxisGroup,
@@ -55,7 +63,7 @@ function parseNumbers(d) {
 function constructChart() {
   // Scales
   let years = njData.map(d => d.year);
-  let values = data.map(d => d.gmsl);
+  let values = njData.map(d => d.gmsl);
 
   xScale = d3.scaleLinear()
     .domain(d3.extent(years));
@@ -68,11 +76,16 @@ function constructChart() {
     .tickFormat(d3.format(".4"));
 
   yAxis = d3.axisLeft(yScale)
+    .ticks(8)
     .tickPadding(10);
 
   line = d3.line()
     .x(d => xScale(d.year))
     .y(d => yScale(d.gmsl));
+
+  meanLine = d3.line()
+    .x(d => xScale(d.year))
+    .y(d => yScale(d.quadratic_mean))
 
   // Chart parts
   $container = d3.select(containerSelector);
@@ -87,14 +100,22 @@ function constructChart() {
 
   $yAxisGroup = $g.append('g')
     .classed('y axis', true);
+  
+  /*$njPath = $g.append('path')
+    .style('fill', 'none')
+    .style('stroke', '#797979');*/
+
+  $dots = $g.selectAll('circle')
+    .data(njData)
+    .enter()
+    .append('circle')
+    .style('fill', 'white')
+    .attr('r', 0)
+    .style('opacity', 0);
 
   $path = $g.append('path')
-    .style('fill', 'none')
-    .style('stroke', 'white');
-
-  $njPath = $g.append('path')
-    .style('fill', 'none')
-    .style('stroke', 'orange');
+    .classed('mean', true)
+    .style('fill', 'none');
 
   $title = $g.append('text')
     .classed('chart-title', true)
@@ -103,6 +124,15 @@ function constructChart() {
     .attr('y', - margins.top + 25);
 
   resize();
+}
+
+function showDots() {
+  $dots
+    .transition()
+    .duration(500)
+    .delay((d, i) => i * 5)
+    .style('opacity', 0.3)
+    .attr('r', 2.5);
 }
 
 function renderChart() {
@@ -116,8 +146,11 @@ function renderChart() {
     .attr('width', width + margins.left + margins.right)
     .attr('height', height + margins.top + margins.bottom);
 
-  $path.attr('d', line(data));
-  $njPath.attr('d', line(njData));
+  $path.attr('d', meanLine(njData));
+
+  $dots.attr('cx', d => xScale(d.year))
+    .attr('cy', d => yScale(d.gmsl))
+  //$njPath.attr('d', line(njData));
 }
 
 function resize() {

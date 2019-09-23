@@ -23,8 +23,8 @@
 .chart-wrap--background
   max-width 1200px
   margin auto
-  margin-bottom 50px
-  margin-top 65px
+  margin-bottom 100px
+  margin-top 105px
   width 100%
   
   &#sea-level
@@ -35,16 +35,25 @@
   
   .tick text
     font-family forma-djr-deck, sans-serif
-    font-size 15px
-    letter-spacing 0.5px
-    fill #92909d
+    font-size 16px
+    letter-spacing 0.7px
+    fill #cac8d2
     
   .tick line
     opacity 0.6
     
+  .y.axis line, .x.axis line
+    stroke-opacity 0.2
+    stroke #fff
+    stroke-dasharray 3
+    
   .y.axis .tick:first-of-type line
     stroke white
     opacity 0.6
+    
+  .mean
+    stroke $orange
+    stroke-width 2
 
 .chart-title
   font-family big-caslon-fb, serif
