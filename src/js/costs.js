@@ -49,7 +49,8 @@ let $svg,
     $xAxisGroup,
     $minValues,
     $maxValues,
-    $hoverRect;
+    $hoverRect,
+    $title;
 
 let poseFns = {
   0: () => {
@@ -299,6 +300,12 @@ function constructChart() {
   $xAxisGroup = $g.append('g')
     .classed('x axis', true);
 
+
+  $title = $svg.append('text')
+    .text('Costs of Climate Change')
+    .attr('text-anchor', 'middle')
+    .classed('costs-title', true)
+
   $countyLabels = $g.selectAll('.county-label')
     .data(data)
     .enter()
@@ -481,6 +488,9 @@ function renderChart(duration = 0) {
   let key2020_05 = showingGdp ? 'gdp_damage_2020_0.5' : 'damage_2020_0.5';
   let key2020_17 = showingGdp ? 'gdp_damage_2020_0.17' : 'damage_2020_0.17';
   let key2020_83 = showingGdp ? 'gdp_damage_2020_0.83' : 'damage_2020_0.83';
+
+  $title.attr('x', width / 2)
+    .attr('y', 50)
 
   $dots2020
     .transition()

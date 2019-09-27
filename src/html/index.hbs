@@ -24,6 +24,17 @@
 				<span class="title-top">New Jersey’s</span>
 				<span class="title-bottom">Rising Coastal Risk</span>
 			</h1>
+			<div class="logos">
+				<div class="logos__row">
+					<img class="split-image" src="{{basepath}}assets/images/rhodium_logo.png"/>
+					<img class="split-image" src="{{basepath}}assets/images/rutgers_logo.png"/>
+				</div>
+				<div class="logos__row">
+					<img class="split-image" src="{{basepath}}assets/images/first_street_logo.png"/>
+					<img class="split-image" src="{{basepath}}assets/images/epic_logo.png"/>
+					<img class="split-image" src="{{basepath}}assets/images/berkley_logo.png"/>
+				</div>
+			</div>
 			<h2>
 				{{copy.subhed}}
 			</h2>
@@ -88,6 +99,12 @@
 			
 					{{#ifEquals this.type 'chart'}}
 						<div class="chart-wrap--background" id="{{this.value}}">
+							<h2 class="chart-title">
+								High Tides Are Getting Higher
+							</h2>
+							<h3 class="chart-subhed">
+								Sea level in Atlantic City relative to 1980-2019 average.
+							</h3>
 						</div>
 					{{/ifEquals}}
 			{{/each}}v
@@ -149,12 +166,18 @@
 	</section>
 
 	<section class="story-section wind">
+		{{#each copy.wind-intro}}
+			<p class="text text--centered">
+				{{this.text}}
+			</p>
+		{{/each}}
 		<div id="wind-main">
-			<div id="wind-main__chart">
+			<div class="tidal-main__graphic" id="wind-main__chart">
+				<image src="{{basepath}}assets/images/nj_wide.png" />
 			</div>
 			<div id="wind-main__text">
 				{{#each copy.wind}}
-					<p>{{this.text}}</p>
+					<p class="wind-step" data-pose={{this.step}}>{{this.text}}</p>
 				{{/each}}
 			</div>
 		</div>
@@ -166,18 +189,21 @@
 	-->
 	</section>
 
-	<section class="costs">
-		<div class="tidal-header">
-			<div class="tidal-video-wrap">
-				<video autoplay muted loop id="flooding-video">
-				  <source src="{{basepath}}assets/images/flood.mov" type="video/mp4">
-				</video>
+	<section class="costs-intro">
+		<div class="tidal-header split-header-wrap">
+			<div class="split-image-wrap">
+				<img class="split-image" src="{{basepath}}assets/images/wind.jpg"/>
 			</div>
-			<div class="tidal-title">
-				<h4>Part 3</h4>
-				<h2>What Will It Cost?</h2>
+			<div class="split-header-text">
+				<h2>
+					<span class="small">Part 3</span>
+					<span class="large">What will it cost?</span>
+				</h2>
 			</div>
 		</div>
+	</section>
+
+	<section class="costs">
 		<div class="costs-intro">
 			{{#each copy.costs-intro}}
 				<p class="text text--centered">
@@ -198,6 +224,14 @@
 				{{/each}}
 			</div>
 		</div>
+	</section>
+
+	<section class="outro">
+		{{#each copy.outro}}
+			<p class="text text--centered">
+				{{this.text}}
+			</p>
+		{{/each}}
 	</section>
 
 

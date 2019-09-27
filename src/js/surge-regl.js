@@ -6,6 +6,7 @@ import { sumArray } from './math-utils';
 const scroller = scrollama();
 
 let initialized = false;
+let previousPose = 0;
 
 let previousPoints = [];
 
@@ -26,10 +27,15 @@ scroller
         }
       })
 
+
+    let delayTime = index === 1 ? 2500 : 600;
+
     if (initialized && !isNaN(poseNum)) {
-      animateToPose(poseNum);
+      animateToPose(poseNum, 1000, delayTime);
       //showCountyLabels(poseNum === 4);
     }
+
+    stepFns[index]();
   })
   .onStepExit(response => {
     // { element, index, direction }
@@ -48,7 +54,13 @@ let width,
   projection;
 
 let $svg,
-  $labels;
+  $labels,
+  $count1980,
+  $count2020,
+  $label1980,
+  $label2020,
+  $dollarCount,
+  $title;
 
 let points,
   poses,
@@ -57,10 +69,10 @@ let points,
   pointWidth;
 
 let colors = {
-  darkGray: [0.5, 0.5, 0.5],
+  darkGray: [0.5, 0.5, 0.5, 0.7],
   blue: '#8080F7',
   orange: '#e36f22',  
-  red: [227 / 255, 111 / 255, 34 / 255]
+  red: [227 / 255, 111 / 255, 34 / 255, 0.7]
 }
 
 let startTime = null;
@@ -74,15 +86,112 @@ let sortedCounties,
   barGap,
   totalWidth,
   longestCounty;
+
+let stepFns = {
+  0: () => {
+    $count2020
+      .transition()
+      .duration(300)
+      .style('opacity', 0);
+
+    $label2020
+      .transition()
+      .duration(300)
+      .style('opacity', 0);
+  },
+  1: () => {
+    $count1980
+      .transition()
+      .duration(600)
+      .style('opacity', 1);
+
+    $label1980
+      .transition()
+      .duration(600)
+      .style('opacity', 1);
+
+     $count2020
+      .transition()
+      .duration(300)
+      .style('opacity', 1)
+      .on('end', () => {
+        $count2020
+          .transition()
+          .duration(2000)
+          .tween("text", function(d) {
+            var i = d3.interpolate(0, +data.buildings_flooded_surge_rp30_2013);
+            return function(t) {
+              d3.select(this).text(d3.format(".3s")(i(t)));
+            };
+          })
+      });
+
+    $label2020
+      .transition()
+      .duration(300)
+      .style('opacity', 1);
+
+    $dollarCount
+      .transition()
+      .duration(300)
+      .style('opacity', 0)
+
+     $title
+      .transition()
+      .duration(600)
+      .style('opacity', 1)
+  },
+  2: () => {
+    $title
+      .transition()
+      .duration(600)
+      .style('opacity', 0)
+
+    $count2020
+      .transition()
+      .duration(600)
+      .style('opacity', 0);
+
+    $label2020
+      .transition()
+      .duration(600)
+      .style('opacity', 0);
+
+    $count1980
+      .transition()
+      .duration(600)
+      .style('opacity', 0);
+
+    $label1980
+      .transition()
+      .duration(600)
+      .style('opacity', 0);
+
+    $dollarCount
+      .transition()
+      .duration(600)
+      .style('opacity', 1)
+      .on('end', () => {
+        $dollarCount
+          .transition()
+          .duration(2000)
+          .tween("text", function(d) {
+            var i = d3.interpolate(0, 60000000000);
+            return function(t) {
+              d3.select(this).text(d3.format('$,.0f')(i(t)));
+            };
+          })
+      });
+  }
+}
  
 function init() {
   d3.selectAll('.surge-step')
       .style('opacity', 0.3)
 
   loadData(['surge.json', 'tidal.json']).then(([d, t]) => {
-  console.log(d, t)
     //floodingData = d;
-    data = d;
+    data = d[0];
     tidal = t;
 
     let kt18 = sumArray(t, e => parseFloat(e.impacted_kt18));
@@ -98,8 +207,6 @@ function init() {
       kt80
     }
 
-    console.log(floodedByYear)
-
     constructScene();
   })
 }
@@ -110,6 +217,82 @@ function constructScene() {
 
   availableHeight = height //- (padding.top + padding.bottom);
   totalWidth = width //- padding.left - padding.right;
+
+  $svg = d3.select(selector)
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .style('top', 0)
+    .style('left', 0)
+    .style('position', 'absolute');
+
+  $title = $svg.append('text')
+    .text('Properties Threatened by Hurricane Flooding')
+    .attr('x', width / 2)
+    .attr('y', 100)
+    .attr('text-anchor', 'middle')
+    .attr('alignment-baseline', 'center')
+    .classed('surge-title', true)
+
+  $dollarCount = $svg.append('text')
+    .text('0')
+    .attr('y', height / 2)
+    .attr('x', width / 2)
+    .style('fill', 'white')
+    .style('opacity', 0)
+    .attr('text-anchor', 'middle')
+    .attr('alignment-baseline', 'center')
+    .classed('dollar-count', true);
+
+  $count1980 = $svg.append('text')
+    .text(d3.format("~s")(data.buildings_flooded_surge_rp30_1980))
+    .attr('y', height - 150)
+    .style('fill', 'white')
+    .attr('x', (width / 5) * 1.5)
+    .attr('text-anchor', 'middle')
+    .classed('count-label', true);
+
+  $count2020 = $svg.append('text')
+    .text('0')
+    .attr('y', height - 150)
+    .style('fill', 'white')
+    .attr('x', (width / 5) * 3.5)
+    .attr('text-anchor', 'middle')
+    .style('opacity', 0)
+    .classed('count-label', true);
+
+  $label1980 = $svg.append('text')
+    .attr('y', height - 120)
+    .style('fill', 'white')
+    .attr('x', (width / 5) * 1.5)
+    .attr('text-anchor', 'middle')
+    .classed('count-label-text', true);
+
+  $label1980.append('tspan')
+    .attr('x', (width / 5) * 1.5)  
+    .text('properties at risk')
+
+  $label1980.append('tspan')
+    .attr('x', (width / 5) * 1.5)
+    .text('in 1980')
+    .attr('dy', 26)
+
+  $label2020 = $svg.append('text')
+    .attr('y', height - 120)
+    .style('fill', 'white')
+    .attr('x', (width / 5) * 3.5)
+    .attr('text-anchor', 'middle')
+    .style('opacity', 0)
+    .classed('count-label-text', true);
+
+  $label2020.append('tspan')
+    .attr('x', (width / 5) * 3.5)
+    .text('additional properties')
+
+  $label2020.append('tspan')
+    .attr('x', (width / 5) * 3.5)
+    .text('at risk in 2013')
+    .attr('dy', 26)
 
   /*
   $svg = d3.select(selector).append('svg')
@@ -130,17 +313,17 @@ function constructScene() {
     .style('fill', 'white');
   */
 
-  nPoints = data[0].buildings_flooded_surge_rp30_2013;
-
-  console.log(nPoints, floodedByYear)
+  nPoints = data.buildings_flooded_surge_rp30_2013;
 
   pointWidth = 2;
 
   points = createPoints(nPoints);
 
   poses = [
-    emGridLayout18,
-    surgeGridLayout
+    surgeLayout1980,
+    surgeLayout2020,
+    circleLayout,
+    coloredCircleLayout,
   ];
   
   currentPose = 0;
@@ -157,10 +340,12 @@ function constructScene() {
 
 
 
-function animateToPose(poseNum, duration=1000) {
-  const delayByIndex = 600 / points.length;  
+function animateToPose(poseNum, duration=1000, delayTime=600) {
 
+  previousPose = currentPose;
   currentPose = poseNum;
+
+
   points.forEach(point => {
     point.sx = point.tx,
     point.sy = point.ty,
@@ -177,8 +362,6 @@ function animateToPose(poseNum, duration=1000) {
 
   const drawPoints = createDrawPoints(points);
 
-  console.log(points)
-
   // start an animation loop
   let startTime = null; // in seconds
   const frameLoop = regl.frame(({ time }) => {
@@ -191,11 +374,9 @@ function animateToPose(poseNum, duration=1000) {
     // clear the buffer
     regl.clear({
       // background color (black)
-      color: [1, 0, 0, 0],
+      color: [0, 0, 0, 0],
       depth: 1,
     });
-
-    console.log(width, height)
 
     // draw the points using our created regl func
     // note that the arguments are available via `regl.prop`.
@@ -205,10 +386,9 @@ function animateToPose(poseNum, duration=1000) {
       stageHeight: height,
       duration,
       startTime,
-      delayByIndex,
     });
 
-    if (time - startTime > ((duration + 600) / 1000)) {
+    if (time - startTime > ((duration + delayTime) / 1000)) {
       frameLoop.cancel();
       startTime = null;
     }
@@ -224,24 +404,25 @@ function createDrawPoints(points) {
       precision highp float;
 
       // this value is populated by the vertex shader
-      varying vec3 fragColor;
+      varying vec4 fragColor;
 
       void main() {
         // gl_FragColor is a special variable that holds the color
         // of a pixel
-        gl_FragColor = vec4(fragColor, 1);
+        gl_FragColor = fragColor;
       }
     `,
     vert: `
       // per vertex attributes
       attribute vec2 positionStart;
       attribute vec2 positionEnd;
-      attribute vec3 colorStart;
-      attribute vec3 colorEnd;
+      attribute vec4 colorStart;
+      attribute vec4 colorEnd;
       attribute float index;
+      attribute float delay;
 
       // variables to send to the fragment shader
-      varying vec3 fragColor;
+      varying vec4 fragColor;
 
       // values that are the same for all vertices
       uniform float pointWidth;
@@ -249,7 +430,6 @@ function createDrawPoints(points) {
       uniform float stageHeight;
       uniform float elapsed;
       uniform float duration;
-      uniform float delayByIndex;
 
       float easeCubicInOut(float t) {
         t *= 2.0;
@@ -276,8 +456,6 @@ function createDrawPoints(points) {
       void main() {
         // update the size of a point based on the prop pointWidth
         gl_PointSize = pointWidth;
-
-        float delay = delayByIndex * index;
 
         float t;
 
@@ -308,6 +486,7 @@ function createDrawPoints(points) {
       colorStart: points.map(d => d.colorStart),
       colorEnd: points.map(d => d.colorEnd),
       index: points.map(d => d.id),
+      delay: points.map(d => d.delay),
     },
 
     uniforms: {
@@ -321,7 +500,6 @@ function createDrawPoints(points) {
       // passing them in.
       stageWidth: regl.prop('stageWidth'),
       stageHeight: regl.prop('stageHeight'),
-      delayByIndex: regl.prop('delayByIndex'),
       duration: regl.prop('duration'),
       // time in ms since the prop startTime (i.e. time elapsed)
       // note that `time` is passed by regl whereas `startTime`
@@ -330,6 +508,16 @@ function createDrawPoints(points) {
         return (time - startTime) * 1000
       },
     },
+     blend: {
+      enable: true,
+      func: {
+        srcRGB: 'src alpha',
+        srcAlpha: 'src alpha',
+        dstRGB: 'one minus src alpha',
+        dstAlpha: 'one minus src alpha',
+      },
+    },
+    depth: { enable: false },
 
     // specify the number of points to draw
     count: points.length,
@@ -340,11 +528,14 @@ function createDrawPoints(points) {
 }
 
 function createPoints(nPoints) {
-  return d3.range(nPoints).map(i => ({
+  let delayByIndex = 600 / nPoints;
+
+  return d3.range(nPoints).map((d, i) => ({
     id: i,
     tx: 0,
     ty: 0,
-    colorEnd: [0, 0, 0]
+    colorEnd: [0, 0, 0, 0],
+    delay: i * delayByIndex
   }));
 }
 
@@ -396,108 +587,127 @@ function gray() {
   return colors.darkGray;
 }
 
-function emGridLayout18(points) {
-  return genericGridLayout(points, floodedByYear.em18, gray);
-}
-
-function surgeGridLayout(points) {
-  return genericGridLayout(points, points.length, gray);
-}
-
-function genericGridLayout(points, cutoff, colorFn) {
-  const BOX_ROWS = 9;
-  //const BOX_COLS = 12;
-  const N_DOTS_PER_BOX = 1000;
-  const BOX_SIDE = 50;
-  const BOX_GAP = 5;
-
-  const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
-  const nBoxesEm18 = Math.ceil((floodedByYear.em18 - floodedByYear.kt18) / N_DOTS_PER_BOX);
-
-  const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
-  const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
-
-  const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
-  const totalWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+function circleLayout(points) {
+  let radius = width / 2;
 
   return points.map((point, i) => {
-    let BOX_COLS = i < floodedByYear.kt18 ? BOX_COLS_KT : BOX_COLS_EM;
-    let offset = i < floodedByYear.kt18 ? 0 : (BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP);
+    let theta = Math.random() * (Math.PI * 2);
+    let r = radius * Math.sqrt(Math.random());
 
-    let trueI = i < floodedByYear.kt18 ? i : i - floodedByYear.kt18;
+    let x = r * Math.cos(theta) + (width / 2);
+    let y = r * Math.sin(theta) + (height / 2);
 
-    let boxNum = Math.floor(trueI / N_DOTS_PER_BOX);
-    let col = Math.floor(boxNum / BOX_ROWS);
-    let row = boxNum - (col * BOX_ROWS);
-
-    let minY = row * (BOX_SIDE + BOX_GAP);
-    let maxY = minY + BOX_SIDE;
-
-    let minX = (col * (BOX_SIDE + BOX_GAP)) + offset;
-    let maxX = minX + BOX_SIDE;
-
-    if (i < cutoff) {
-      if (i < previousPoints.length) {
-        point.x = previousPoints[i].x;
-        point.y = previousPoints[i].y;
-      } else {
-        let x = ((Math.random() * (maxX - minX)) + minX) + (width / 2) - (totalWidth / 2);
-        let y = ((Math.random() * (maxY - minY)) + minY) + (height / 2) - (totalHeight / 2);
-        point.x = x;
-        point.y = y;
-        previousPoints.push({x, y});
-      }
-    } else {
-      print('out of cutoff')
-      point.x = width + 5 + Math.random() * 500;
-      point.y = Math.random() * height;
-    }
-
-    point.color = [1,1,1]//colorFn(i);
-
-    return point;
-  })  
-}
-
-function squareLayout2050(points) {
-  let total2020 = Math.floor(data.reduce((sum, e) => {
-    return sum + parseFloat(e.exposure_surge_2020)
-  }, 0));
-
-  let total2050 = Math.floor(data.reduce((sum, e) => {
-    return sum + parseFloat(e.exposure_surge_2050)
-  }, 0));
-
-  let padding = 100;
-  let constrainingDimension = Math.min(width, height);
-  let squareSide = constrainingDimension - (padding * 2);
-  let height2020 = squareSide * (total2020 / total2050);
-  let height2050 = squareSide - height2020;
-
-  let x1 = 0;
-  let x2 = padding + squareSide;
-  let y1 = padding + height2050;
-  let y2 = y1 + height2020;
-
-  let y1_2050 = padding;
-  let y2_2050 = y1_2050 + height2050;
-
-  return points.map((point, i) => {
-    if (i < total2020) {
-      point.x = point.sx;
-      point.y = point.sy;
-      point.color = colors.darkGray;
-      point.width = 3;
-
-    } else {
-      point.x = point.sx || x1 + (Math.random() * (x2 - x1))
-      point.y = y1_2050 + (Math.random() * (y2_2050 - y1_2050))
-      point.color = colors.red;
-      point.width = 3;
-    }
+    point.x = x;
+    point.y = y;
+    point.delay = (600 / points.length) * i;
+    point.color = [1, 1, 1, 0.7];
 
     return point;
   });
+}
+
+function coloredCircleLayout(points) {
+  let radius = width / 2;
+
+  return points.map((point, i) => {
+    let theta = Math.random() * (Math.PI * 2);
+    let r = radius * Math.sqrt(Math.random());
+
+    let x = previousPose === 2 ? point.x : r * Math.cos(theta) + (width / 2);
+    let y = previousPose === 2 ? point.y : r * Math.sin(theta) + (height / 2);
+
+    theta = Math.atan2(y - (height / 2), x - (width / 2));
+
+    if (theta < 0) {
+      theta += (Math.PI * 2);
+    }
+
+    point.x = x;
+    point.y = y;
+    point.delay = (600 / points.length) * i;
+    point.color = theta < (Math.PI * 2 * .66) ? colors.red : [1, 1, 1, 0.7];
+
+    return point;
+  });
+} 
+
+function surgeLayout1980(points) {
+  let n1980 = +data.buildings_flooded_surge_rp30_1980;
+  let n2020 = +data.buildings_flooded_surge_rp30_2013;
+
+  let paddingTop = 250;
+  let paddingBottom = 200;
+
+  let height2020 = height - (paddingTop + paddingBottom);
+  let height1980 = height2020 * (n1980 / n2020);
+
+  let barWidth = width / 5;
+
+  let maxY = paddingTop + height2020;
+  let minY1980 = maxY - height1980;
+  let minY2020 = maxY - height2020;
+
+  let minX1980 = barWidth;
+  let maxX1980 = 2 * barWidth;
+  let minX2020 = 3 * barWidth;
+  let maxX2020 = 4 * barWidth;
+  
+  return points.map((point, i) => {
+    if (i < n1980) {
+      point.x = between(minX1980, maxX1980);
+      point.y = between(minY1980, maxY);
+      point.color = colors.darkGray;
+      point.width = 3;
+    } else {
+      point.x = between(minX2020, maxX2020);
+      point.y = -10;
+      point.color = colors.darkGray;
+      point.width = 3;
+      point.delay = (600 / points.length) * i;
+    }
+  })
+}
+
+function surgeLayout2020(points) {
+  let n1980 = +data.buildings_flooded_surge_rp30_1980;
+  let n2020 = +data.buildings_flooded_surge_rp30_2013;
+  
+  let paddingTop = 250;
+  let paddingBottom = 200;
+
+  let height2020 = height - (paddingTop + paddingBottom);
+  let height1980 = height2020 * (n1980 / n2020);
+
+  let barWidth = width / 5;
+
+  let maxY = paddingTop + height2020;
+  let minY1980 = maxY - height1980;
+  let minY2020 = maxY - height2020;
+
+  let minX1980 = barWidth;
+  let maxX1980 = 2 * barWidth;
+  let minX2020 = 3 * barWidth;
+  let maxX2020 = 4 * barWidth;
+  
+  return points.map((point, i) => {
+    if (i < n1980) {
+      point.x = previousPose === 0 ? point.x : between(minX1980, maxX1980);
+      point.y = previousPose === 0 ? point.y : between(minY1980, maxY);
+      point.color = colors.darkGray;
+      point.width = 3;
+    } else {
+      let y = between(minY2020, maxY);
+      point.x = previousPose === 0 ? point.x : between(minX2020, maxX2020);
+      point.y = y;
+      point.color = colors.darkGray;
+      point.width = 3;
+      point.delay = 2000 - (2000 * ((y - minY2020) / (maxY - minY2020))) + (Math.random() * 100)
+    }
+  })
+}
+
+function between(a, b) {
+  return (Math.random() * (b - a)) + a;
 }
 
 function resize() {

@@ -24,7 +24,7 @@ let width,
     xAxis,
     yAxis,
     margins = {
-      top: 60,
+      top: 30,
       right: 50,
       bottom: 30,
       left: 50
@@ -117,12 +117,13 @@ function constructChart() {
     .classed('mean', true)
     .style('fill', 'none');
 
+    /*
   $title = $g.append('text')
     .classed('chart-title', true)
     .text(chartTitle)
     .attr('x', 0)
     .attr('y', - margins.top + 25);
-
+  */
   resize();
 }
 
@@ -140,7 +141,14 @@ function renderChart() {
     .attr('transform', `translate(0, ${height})`)
     .call(xAxis.tickSize(-height));
 
-  $yAxisGroup.call(yAxis.tickSize(-width))
+  $yAxisGroup
+    .call(yAxis.tickSize(-width))
+
+  $yAxisGroup.select('.tick:last-child text')
+    .text(function() {
+      return d3.select(this).text() + ' IN.'
+    })
+    .attr('x', 12)
 
   $svg
     .attr('width', width + margins.left + margins.right)
