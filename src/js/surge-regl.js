@@ -100,15 +100,6 @@ let stepFns = {
       .style('opacity', 0);
   },
   1: () => {
-    $count1980
-      .transition()
-      .duration(600)
-      .style('opacity', 1);
-
-    $label1980
-      .transition()
-      .duration(600)
-      .style('opacity', 1);
 
      $count2020
       .transition()
@@ -153,16 +144,6 @@ let stepFns = {
       .style('opacity', 0);
 
     $label2020
-      .transition()
-      .duration(600)
-      .style('opacity', 0);
-
-    $count1980
-      .transition()
-      .duration(600)
-      .style('opacity', 0);
-
-    $label1980
       .transition()
       .duration(600)
       .style('opacity', 0);
@@ -227,7 +208,7 @@ function constructScene() {
     .style('position', 'absolute');
 
   $title = $svg.append('text')
-    .text('Properties Threatened by Hurricane Flooding')
+    .text('Properties Newly Threatened by Hurricane Flooding')
     .attr('x', width / 2)
     .attr('y', 100)
     .attr('text-anchor', 'middle')
@@ -244,53 +225,29 @@ function constructScene() {
     .attr('alignment-baseline', 'center')
     .classed('dollar-count', true);
 
-  $count1980 = $svg.append('text')
-    .text(d3.format("~s")(data.buildings_flooded_surge_rp30_1980))
-    .attr('y', height - 150)
-    .style('fill', 'white')
-    .attr('x', (width / 5) * 1.5)
-    .attr('text-anchor', 'middle')
-    .classed('count-label', true);
-
   $count2020 = $svg.append('text')
     .text('0')
     .attr('y', height - 150)
     .style('fill', 'white')
-    .attr('x', (width / 5) * 3.5)
+    .attr('x', (width / 2))
     .attr('text-anchor', 'middle')
     .style('opacity', 0)
     .classed('count-label', true);
 
-  $label1980 = $svg.append('text')
-    .attr('y', height - 120)
-    .style('fill', 'white')
-    .attr('x', (width / 5) * 1.5)
-    .attr('text-anchor', 'middle')
-    .classed('count-label-text', true);
-
-  $label1980.append('tspan')
-    .attr('x', (width / 5) * 1.5)  
-    .text('properties at risk')
-
-  $label1980.append('tspan')
-    .attr('x', (width / 5) * 1.5)
-    .text('in 1980')
-    .attr('dy', 26)
-
   $label2020 = $svg.append('text')
     .attr('y', height - 120)
     .style('fill', 'white')
-    .attr('x', (width / 5) * 3.5)
+    .attr('x', (width / 2))
     .attr('text-anchor', 'middle')
     .style('opacity', 0)
     .classed('count-label-text', true);
 
   $label2020.append('tspan')
-    .attr('x', (width / 5) * 3.5)
+    .attr('x', (width / 2))
     .text('additional properties')
 
   $label2020.append('tspan')
-    .attr('x', (width / 5) * 3.5)
+    .attr('x', (width / 2))
     .text('at risk in 2013')
     .attr('dy', 26)
 
@@ -631,44 +588,76 @@ function coloredCircleLayout(points) {
   });
 } 
 
+
+function genericGridLayout(points, cutoff, colorFn) {
+  const BOX_ROWS = 9;
+  //const BOX_COLS = 12;
+  const N_DOTS_PER_BOX = 1000;
+  const BOX_SIDE = 50;
+  const BOX_GAP = 5;
+
+  const nBoxes = Math.ceil(cutoff / N_DOTS_PER_BOX);
+
+  const BOX_COLS = Math.ceil(nBoxes / BOX_ROWS);
+
+  const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+  const totalWidth = ((BOX_COLS) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+
+  return points.map((point, i) => {
+
+    let trueI = i;
+
+    let boxNum = Math.floor(trueI / N_DOTS_PER_BOX);
+    let col = Math.floor(boxNum / BOX_ROWS);
+    let row = boxNum - (col * BOX_ROWS);
+
+    let minY = row * (BOX_SIDE + BOX_GAP);
+    let maxY = minY + BOX_SIDE;
+
+    let minX = (col * (BOX_SIDE + BOX_GAP));
+    let maxX = minX + BOX_SIDE;
+
+    let x = ((Math.random() * (maxX - minX)) + minX) + (width / 2) - (totalWidth / 2);
+    let y = ((Math.random() * (maxY - minY)) + minY) + (height / 2) - (totalHeight / 2);
+    point.x = x;
+    point.y = y;
+
+    point.color = colorFn(i);
+
+    return point;
+  })  
+}
+
+
 function surgeLayout1980(points) {
-  let n1980 = +data.buildings_flooded_surge_rp30_1980;
-  let n2020 = +data.buildings_flooded_surge_rp30_2013;
+  const BOX_ROWS = 9;
+  //const BOX_COLS = 12;
+  const N_DOTS_PER_BOX = 1000;
+  const BOX_SIDE = 50;
+  const BOX_GAP = 5;
 
-  let paddingTop = 250;
-  let paddingBottom = 200;
+  const nBoxes = Math.ceil(points.length / N_DOTS_PER_BOX);
 
-  let height2020 = height - (paddingTop + paddingBottom);
-  let height1980 = height2020 * (n1980 / n2020);
+  const BOX_COLS = Math.ceil(nBoxes / BOX_ROWS);
 
-  let barWidth = width / 5;
+  const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+  const totalWidth = ((BOX_COLS) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
 
-  let maxY = paddingTop + height2020;
-  let minY1980 = maxY - height1980;
-  let minY2020 = maxY - height2020;
-
-  let minX1980 = barWidth;
-  let maxX1980 = 2 * barWidth;
-  let minX2020 = 3 * barWidth;
-  let maxX2020 = 4 * barWidth;
+  let minX = (width / 2) - (totalWidth / 2);
+  let maxX = minX + totalWidth;
   
   return points.map((point, i) => {
-    if (i < n1980) {
-      point.x = between(minX1980, maxX1980);
-      point.y = between(minY1980, maxY);
-      point.color = colors.darkGray;
-      point.width = 3;
-    } else {
-      point.x = between(minX2020, maxX2020);
-      point.y = -10;
-      point.color = colors.darkGray;
-      point.width = 3;
-      point.delay = (600 / points.length) * i;
-    }
+    let x = ((Math.random() * (maxX - minX)) + minX);
+    let y = -10;
+    point.x = x;
+    point.y = y;
+    point.color = colors.darkGray;
+    point.width = 3;
   })
 }
 
 function surgeLayout2020(points) {
+  return genericGridLayout(points, points.length, () => colors.darkGray)
   let n1980 = +data.buildings_flooded_surge_rp30_1980;
   let n2020 = +data.buildings_flooded_surge_rp30_2013;
   

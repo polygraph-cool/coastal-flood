@@ -117,7 +117,7 @@ let fns = {
     $paths_1980
       .transition()
       .duration(1000)
-      .style('opacity', 1)
+      .style('opacity', 0.8)
 
      $paths_2020
       .transition()
@@ -133,7 +133,7 @@ let fns = {
      $paths_2020
       .transition()
       .duration(1000)
-      .style('opacity', 1)
+      .style('opacity', 0.8)
   }
 }
 
