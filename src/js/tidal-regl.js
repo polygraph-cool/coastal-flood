@@ -365,14 +365,14 @@ function constructScene() {
     .attr('y', (d, i) => padding.top + (barHeight * i) + (barHeight / 2))
     .style('fill', 'white');
 
-  const BOX_ROWS = 9;
+  const BOX_ROWS = 10;
   //const BOX_COLS = 12;
   const N_DOTS_PER_BOX = 1000;
   const BOX_SIDE = 50;
   const BOX_GAP = 5;
 
   const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
-  const nBoxesEm18 = Math.ceil((floodedByYear.em18 - floodedByYear.kt18) / N_DOTS_PER_BOX);
+  const nBoxesEm18 = Math.ceil((floodedByYear.em18) / N_DOTS_PER_BOX);
 
   const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
   const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
@@ -408,8 +408,8 @@ function constructScene() {
       return ((width / 2) - (totalChartWidth / 2)) + ((BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) + ((BOX_COLS_EM * (BOX_SIDE + BOX_GAP)) / 2)
     });
 
-  $emHeader.append('tspan').text('Additional properties at')
-  $emHeader.append('tspan').text('risk of annual flooding')
+  $emHeader.append('tspan').text('Properties at risk')
+  $emHeader.append('tspan').text('of annual flooding')
     .attr('x', () => {
       return ((width / 2) - (totalChartWidth / 2)) + ((BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) + ((BOX_COLS_EM * (BOX_SIDE + BOX_GAP)) / 2)
     })
@@ -480,7 +480,7 @@ function constructScene() {
     .attr('x', (BOX_SIDE / 2) + 60)
     .attr('dy', 26)
 
-  nPoints = floodedByYear.em18;
+  nPoints = floodedByYear.em18 + floodedByYear.em80;
 
   pointWidth = 2;
 
@@ -747,25 +747,25 @@ function ktGridLayout18(points) {
 }
 
 function emGridLayout18(points) {
-  return genericGridLayout(points, floodedByYear.em18, gray)
+  return genericGridLayout(points, nPoints, gray)
 }
 
 function emGridLayoutYearDiff(points) {
-  return genericGridLayout(points, floodedByYear.em18 + floodedByYear.kt18, newFlooding)
+  return genericGridLayout(points, nPoints, newFlooding)
 }
 
 let previousMade = false;
 let previousPoints = [];
 
 function genericGridLayout(points, cutoff, colorFn) {
-  const BOX_ROWS = 9;
+  const BOX_ROWS = 10;
   //const BOX_COLS = 12;
   const N_DOTS_PER_BOX = 1000;
   const BOX_SIDE = 50;
   const BOX_GAP = 5;
 
   const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
-  const nBoxesEm18 = Math.ceil((floodedByYear.em18 - floodedByYear.kt18) / N_DOTS_PER_BOX);
+  const nBoxesEm18 = Math.ceil((floodedByYear.em18) / N_DOTS_PER_BOX);
 
   const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
   const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
@@ -826,6 +826,11 @@ function annualCountyLayout(points) {
   let currentCountInCounty = 0;
 
   return points.map((point, i) => {
+    if (i > floodedByYear.em18) {
+      point.color = [0, 0, 0, 0];
+      return point;
+    }
+
     let total = +sortedCounties[currentCounty].impacted_em18;
     
     if (currentCountInCounty < total) {
@@ -870,6 +875,11 @@ function frequentCountyLayout(points) {
   console.log(sortedCounties)
 
   return points.map((point, i) => {
+    if (i > floodedByYear.em18) {
+      point.color = [0, 0, 0, 0];
+      return point;
+    }
+    
     let total = +sortedCounties[currentCounty].impacted_em18;
     
     let {
