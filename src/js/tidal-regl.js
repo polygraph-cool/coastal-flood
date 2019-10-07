@@ -714,7 +714,7 @@ function createPoints(nPoints) {
 function mapLayout(points) {
   return points.map((point, i) => {
     // If this is a property that floods during king tides...
-    if (i < floodedByYear.kt80) {
+    if (i < floodedByYear.kt18) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
       point.x = x;
       point.y = y;
@@ -879,7 +879,7 @@ function frequentCountyLayout(points) {
       point.color = [0, 0, 0, 0];
       return point;
     }
-    
+
     let total = +sortedCounties[currentCounty].impacted_em18;
     
     let {
