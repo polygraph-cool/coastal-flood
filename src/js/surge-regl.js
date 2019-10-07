@@ -99,10 +99,6 @@ let stepFns = {
       .duration(300)
       .style('opacity', 0);
 
-    $canvas
-      .transition()
-      .duration(500)
-      .style('opacity', 1)
   },
   1: () => {
     console.log('1')
@@ -122,10 +118,6 @@ let stepFns = {
           })
       });
 
-    $canvas
-      .transition()
-      .duration(500)
-      .style('opacity', 0.7)
 
     $label2020
       .transition()

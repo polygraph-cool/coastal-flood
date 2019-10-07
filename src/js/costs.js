@@ -50,7 +50,8 @@ let $svg,
     $minValues,
     $maxValues,
     $hoverRect,
-    $title;
+    $title,
+    $subhed;
 
 let poseFns = {
   0: () => {
@@ -303,8 +304,11 @@ function constructChart() {
 
   $title = $svg.append('text')
     .text('Costs of a Changing Climate')
-    .attr('text-anchor', 'middle')
     .classed('costs-title', true)
+
+  $subhed = $svg.append('text')
+    .text('Change in annual dollars lost due to climate change, 1980-2018')
+    .classed('costs-subhed', true)
 
   $countyLabels = $g.selectAll('.county-label')
     .data(data)
@@ -489,8 +493,11 @@ function renderChart(duration = 0) {
   let key2020_17 = showingGdp ? 'gdp_damage_2020_0.17' : 'damage_2020_0.17';
   let key2020_83 = showingGdp ? 'gdp_damage_2020_0.83' : 'damage_2020_0.83';
 
-  $title.attr('x', width / 2)
-    .attr('y', 50)
+  $title.attr('x', 40)
+    .attr('y', 30)
+
+  $subhed.attr('x', 40)
+    .attr('y', 60)
 
   $dots2020
     .transition()
