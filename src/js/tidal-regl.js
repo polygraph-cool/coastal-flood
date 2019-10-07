@@ -55,7 +55,9 @@ let basemapBounds = coordsToGeoJson([corners.tl, corners.tr, corners.br, corners
 let width,
   height,
   projection,
-  path;
+  path,
+  xScale,
+  xAxis;
 
 let $svg,
   $labels,
@@ -69,6 +71,7 @@ let $svg,
   $orangeLabelText,
   $ktHeader,
   $emHeader,
+  $xAxis,
   $countyHeader = d3.select('#county-header'),
   $basemap = d3.select('#tidal-graphic img').style('opacity', 0.8);
 
@@ -223,6 +226,11 @@ let fns = {
       .transition()
       .duration(600)
       .style('opacity', 0)
+
+    $xAxis
+      .transition()
+      .duration(600)
+      .style('opacity', 0)
   },
   in_4: () => {
     $orangeLabel
@@ -249,6 +257,12 @@ let fns = {
       .style('opacity', 0.2) 
 
     $countyHeader
+      .transition()
+      .duration(600)
+      .delay(700)
+      .style('opacity', 1)
+
+    $xAxis
       .transition()
       .duration(600)
       .delay(700)
@@ -347,10 +361,33 @@ function constructScene() {
   barHeight = availableHeight / nCounties;
   barGap = 10;
   totalWidth = width - padding.left - padding.right;
+  let totalHeight = height - padding.bottom - padding.top;
+
+  xScale = d3.scaleLinear()
+    .domain([0, floodedByYear.em18])
+    .range([0, totalWidth])
+
+  xAxis = d3.axisBottom()
+    .scale(xScale)
+    .tickSize(-(totalHeight + 5))
+    .tickFormat(d3.format('.1s'))
+    .tickPadding(15)
 
   $svg = d3.select(selector).append('svg')
     .attr('width', width)
     .attr('height', height);
+
+  $xAxis = $svg.append('g')
+    .classed('x axis', true)
+    .style('opacity', 0)
+    .attr('transform', `translate(${padding.left}, ${totalHeight + padding.top})`)
+    .call(xAxis);
+
+  $xAxis.select('.tick:last-child text')
+    .text(function() {
+      return d3.select(this).text() + ' properties'
+    })
+
 
   $labels = $svg.selectAll('.county-label')
     .data(sortedCounties)
