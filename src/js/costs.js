@@ -302,7 +302,7 @@ function constructChart() {
 
 
   $title = $svg.append('text')
-    .text('Costs of Climate Change')
+    .text('Costs of a Changing Climate')
     .attr('text-anchor', 'middle')
     .classed('costs-title', true)
 
