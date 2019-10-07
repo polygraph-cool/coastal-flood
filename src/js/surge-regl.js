@@ -46,7 +46,7 @@ let data, tidal, floodedByYear;
 
 const selector = '#surge-main__chart';
 const $wrap = document.querySelector(selector);
-
+const $canvas = d3.select($wrap).select('canvas');
 const regl = initREGL($wrap)
 
 let width,
@@ -98,6 +98,11 @@ let stepFns = {
       .transition()
       .duration(300)
       .style('opacity', 0);
+
+    $canvas
+      .transition()
+      .duration(500)
+      .style('opacity', 1)
   },
   1: () => {
     console.log('1')
@@ -116,6 +121,11 @@ let stepFns = {
             };
           })
       });
+
+    $canvas
+      .transition()
+      .duration(500)
+      .style('opacity', 0.7)
 
     $label2020
       .transition()
@@ -222,7 +232,7 @@ function constructScene() {
     .style('fill', 'white')
     .style('opacity', 0)
     .attr('text-anchor', 'middle')
-    .attr('alignment-baseline', 'center')
+    .attr('alignment-baseline', 'middle')
     .classed('dollar-count', true);
 
   $count2020 = $svg.append('text')
@@ -557,7 +567,7 @@ function circleLayout(points) {
     point.x = x;
     point.y = y;
     point.delay = (600 / points.length) * i;
-    point.color = [1, 1, 1, 0.7];
+    point.color = colors.darkGray;
 
     return point;
   });
@@ -582,7 +592,7 @@ function coloredCircleLayout(points) {
     point.x = x;
     point.y = y;
     point.delay = (600 / points.length) * i;
-    point.color = theta < (Math.PI * 2 * .66) ? colors.red : [1, 1, 1, 0.7];
+    point.color = theta < (Math.PI * 2 * .66) ? colors.red : colors.darkGray;
 
     return point;
   });
