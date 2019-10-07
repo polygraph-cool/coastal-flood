@@ -6,7 +6,7 @@ const scroller = scrollama();
 d3.selectAll('.intro__step__link')
   .on('click', function() {
     let target = this.dataset.target;
-    console.log(target)
+    
     let top = d3.select(target).node().offsetTop;
 
     window.scrollTo({
