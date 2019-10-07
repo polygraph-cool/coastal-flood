@@ -45,13 +45,13 @@ let corners = {
 }
 
 let legendLabels = [
-  'Greater then 1-in-30',
-  'Between 1-in-30 and 1-in-50',
-  'Between 1-in-50 and 1-in-100',
-  'Between 1-in-100 and 1-in-200',
-  'Between 1-in-200 and 1-in-300',
-  'Between 1-in-300 and 1-in-500',
-  'Less than 1-in-500'
+  '> 1-in-30', //'Greater then 1-in-30',
+  '1-in-30', //'Between 1-in-30 and 1-in-50',
+  '1-in-50',//'Between 1-in-50 and 1-in-100',
+  '1-in-100',//'Between 1-in-100 and 1-in-200',
+  '1-in-200',//'Between 1-in-200 and 1-in-300',
+  '1-in-300',//'Between 1-in-300 and 1-in-500',
+  '< 1-in-500'
 ]
 
 function coordsToGeoJson(coords) {
@@ -84,7 +84,8 @@ let $svg,
   $labels,
   $paths_1980,
   $paths_2020,
-  $legend;
+  $legend,
+  $yearLabel;
 
 let points,
   poses,
@@ -123,6 +124,8 @@ let fns = {
       .transition()
       .duration(1000)
       .style('opacity', 0)
+
+    $yearLabel.text('in 1980')
   },
   1: () => {
     $paths_1980
@@ -134,6 +137,8 @@ let fns = {
       .transition()
       .duration(1000)
       .style('opacity', 0.8)
+
+    $yearLabel.text('in 2018')
   }
 }
 
@@ -162,7 +167,7 @@ scroller
 function palette(min, max) {
     const d = (max-min)/7;
     return d3.scaleThreshold()
-        .range(['#f0f17f', '#ecd76c', '#e6bd58', '#dfa445', '#d78a31', '#ce701d', '#c35504'])
+        .range(['#f0f17f', '#ecd76c', '#e6bd58', '#dfa445', '#d78a31', '#ce701d', '#c35504'].reverse())
         .domain([min + d*1,min + d*2,min + d*3,min + d*4,min + d*5,min + d*6]);
 }
 
@@ -217,7 +222,47 @@ function constructScene() {
     .data(legendLabels)
     .enter()
     .append('g')
-    .attr('transform', (d, i) => `translate(-100, ${i * 30 + (height / 2 - 100)})`);
+    .attr('transform', (d, i) => `translate(-30, ${i * 30 + (height / 2 - 100)})`);
+
+  let legendTitle = $svg.append('text')
+    .classed('legend-title', true)
+    .attr('y', height / 2 - 200)
+    .attr('x', -22)
+    .attr('text-anchor', 'middle');
+
+  legendTitle.append('tspan').text('Annual odds of');
+  legendTitle.append('tspan').text('hurricane-force winds')
+    .attr('dy', 25)
+    .attr('x', -22);
+
+  $yearLabel = legendTitle.append('tspan')
+    .text('in 1980')
+    .attr('dy', 25)
+    .attr('x', -22);
+
+  let moreLikely = $svg.append('text')
+    .classed('legend-label', true)
+    .attr('y', height / 2 - 85)
+    .attr('x', -40)
+    .attr('text-anchor', 'end')
+
+  moreLikely.append('tspan').text('MORE')
+  moreLikely.append('tspan')
+    .text('LIKELY')
+    .attr('dy', 20)
+    .attr('x', -40)
+
+  let lessLikely = $svg.append('text')
+    .classed('legend-label', true)
+    .attr('y', height / 2 + 75)
+    .attr('x', -40)
+    .attr('text-anchor', 'end')
+
+  lessLikely.append('tspan').text('LESS')
+  lessLikely.append('tspan')
+    .text('LIKELY')
+    .attr('dy', 20)
+    .attr('x', -40)
 
   $legend.append('rect')
     .attr('width', 20)
