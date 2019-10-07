@@ -28,14 +28,14 @@ scroller
       })
 
 
-    let delayTime = index === 1 ? 2500 : 600;
+    let delayTime = poseNum === 1 ? 2500 : 600;
 
     if (initialized && !isNaN(poseNum)) {
       animateToPose(poseNum, 1000, delayTime);
       //showCountyLabels(poseNum === 4);
     }
 
-    stepFns[index]();
+    stepFns[poseNum]();
   })
   .onStepExit(response => {
     // { element, index, direction }
@@ -100,7 +100,7 @@ let stepFns = {
       .style('opacity', 0);
   },
   1: () => {
-
+    console.log('1')
      $count2020
       .transition()
       .duration(300)

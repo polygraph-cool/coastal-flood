@@ -73,7 +73,7 @@ let $svg,
   $emHeader,
   $xAxis,
   $countyHeader = d3.select('#county-header'),
-  $basemap = d3.select('#tidal-graphic img').style('opacity', 0.8);
+  $basemap = d3.select('#tidal-graphic img');
 
 let points,
   poses,
@@ -999,7 +999,7 @@ function updateProjection() {
   let s = padding / (currentWidth / trueWidth),
       t = [
         ((trueWidth - s * (currentBounds[1][0] + currentBounds[0][0])) / 2) - ((trueWidth - width) / 2), 
-        ((trueHeight - s * 1.01 * (currentBounds[1][1] + currentBounds[0][1])) / 2) - ((trueHeight - height) / 2) - 9
+        ((trueHeight - s * 1.01 * (currentBounds[1][1] + currentBounds[0][1])) / 2) - ((trueHeight - height) / 2) - 15
       ];
 
   projection

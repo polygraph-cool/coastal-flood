@@ -9,6 +9,15 @@ import costs from './costs';
 import surge from './surge-regl';
 import intro from './intro';
 import titles from './titles';
+import scrollama from 'scrollama';
+
+let scroller = scrollama();
+
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual'
+}
+
+window.scrollTo(0, 0)
 
 // import footer from './footer';
 
