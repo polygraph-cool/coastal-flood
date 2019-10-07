@@ -183,7 +183,7 @@ function constructChart() {
     .enter()
     .append('path')
     .style('fill', 'transparent')
-    .style('stroke', 'red')//d => colorScale(d.properties.date))
+    .style('stroke', '#e36f22')//d => colorScale(d.properties.date))
     .style('opacity', 0)
     .classed('county', true);
 
@@ -201,7 +201,7 @@ function constructChart() {
     .enter()
     .append('path')
     .style('fill', 'transparent')
-    .style('stroke', 'red')//d => colorScale(d.properties.date))
+    .style('stroke', '#e36f22')//d => colorScale(d.properties.date))
     .style('opacity', 0)
     .classed('coast', true);
 
@@ -235,25 +235,28 @@ steps.coastlineExit = function() {
 
 steps.countiesEnter = function() {
   let goodCounties = [
-    'Ocean',
-    'Cape May',
     'Atlantic',
-    'Monmouth',
-    'Salem',
-    'Burlington',
-    'Gloucester',
-    'Camden',
-    'Cumberland',
-    'Middlesex',
-    'Hudson',
-    'Union',
     'Bergen',
+    'Burlington',
+    'Camden',
+    'Cape May',
+    'Cumberland',
     'Essex',
+    'Gloucester',
+    'Hudson',
+    'Mercer',
+    'Middlesex',
+    'Monmouth',
+    'Ocean',
+    'Passaic',
+    'Salem',
+    'Somerset',
+    'Union'
   ]
 
   $counties.transition()
-    .style('stroke', 'red')
-    .style('fill', 'rgba(255, 0, 0, 0.2)')
+    .style('stroke', '#e36f22')
+    .style('fill', 'rgba(227, 111, 34, 0.2)')
     .duration(600)
     .delay((d, i) => i * 20)
     .style('opacity', d => {
