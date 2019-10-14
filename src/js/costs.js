@@ -3,6 +3,8 @@ import scrollama from 'scrollama';
 
 const scroller = scrollama();
 
+const isMobile = window.innerWidth <= 650;
+
 let dotsExpanded = false;
 let showingGdp = false;
 let data, gdp, values;
@@ -51,7 +53,8 @@ let $svg,
     $maxValues,
     $hoverRect,
     $title,
-    $subhed;
+    $subhed,
+    $subhedSpan;
 
 let poseFns = {
   0: () => {
@@ -59,20 +62,20 @@ let poseFns = {
     currentXScale = xScaleZero;
 
     $dots2020
-      .transition()
+      .transition('show-dots')
       .duration(600)
       .delay((d, i) => 500 + i * 80)
       .attr('cx', d => currentXScale(+d['damage_2020_0.5']))
       .style('opacity', 0)
 
     $dots2050
-      .transition()
+      .transition('show-dots')
       .duration(500)
       .delay((d, i) => 500 + i * 80)
       .attr('cx', d => currentXScale(+d['damage_2050_0.5']))
 
     $uncertainty2020
-      .transition()
+      .transition('show-dots')
       .duration(500)
       .delay((d, i) => (i * 80))
       .attr('x1', d => xScale(+d['damage_2020_0.5']))
@@ -85,18 +88,19 @@ let poseFns = {
     if (highlightedCounty) {
       unHighlight();
     }
+
     unHighlight();
     dotsExpanded = true;
     currentXScale = xScale;
     $dots2020
-      .transition()
+      .transition('show-dots')
       .duration(600)
       .delay((d, i) => i * 80)
       .attr('cx', d => currentXScale(+d['damage_2020_0.5']))
       .style('opacity', 1)
 
     $dots2050
-      .transition()
+      .transition('show-dots')
       .duration(500)
       .delay((d, i) => i * 80)
       .attr('cx', d => currentXScale(+d['damage_2050_0.5']))
@@ -106,7 +110,7 @@ let poseFns = {
     $maxValues.attr('x', d => currentXScale(+d['damage_2020_0.83']))
 
     $uncertainty2020
-      .transition()
+      .transition('show-dots')
       .duration(500)
       .delay((d, i) => 650 + (i * 80))
       .attr('x1', d => xScale(+d['damage_2020_0.17']))
@@ -115,6 +119,9 @@ let poseFns = {
   },
   2:() => {
     highlightCounty('Hudson', 500);
+    if (showingGdp) {
+      switchToRawValues();
+    }
   },
   3: () => {
     switchToGdp();
@@ -169,6 +176,90 @@ function init() {
 
 function sortBy(data, column) {
   return data.sort((a, b) => +b[column] - +a[column]).map(e => e.situs_county);
+}
+
+function switchToRawValues() {
+  sortedCounties = sortedRaw;
+  currentXScale = xScale;
+  showingGdp = false;
+
+  xAxis.scale(currentXScale)
+    .tickFormat(d => '+$' + d3.format("0.2s")(d).replace(/G/, "B"));
+
+  $xAxisGroup
+    .transition()
+    .duration(1000)
+    .call(xAxis.tickSize(-height));
+
+  let key2020_05 = showingGdp ? 'gdp_damage_2020_0.5' : 'damage_2020_0.5';
+  let key2020_17 = showingGdp ? 'gdp_damage_2020_0.17' : 'damage_2020_0.17';
+  let key2020_83 = showingGdp ? 'gdp_damage_2020_0.83' : 'damage_2020_0.83';
+
+  $dots2020
+    .transition()
+    .duration(500)
+    .delay((d, i) => i * 50)
+    .attr('cx', d => currentXScale(+d[key2020_05]))
+    .end()
+    .then(() => {
+      $dots2020
+        .transition()
+        .duration(200)
+        .delay((d) => sortedCounties.indexOf(d.situs_county) * 50)
+        .attr('cy', (d) => getCurrentY(d.situs_county))
+    })
+
+  $minValues
+    .attr('x', d => currentXScale(+d[key2020_17]))
+    .attr('y', (d) => getCurrentY(d.situs_county))
+    .style('opacity', 0)
+
+  $maxValues
+    .attr('x', d => currentXScale(+d[key2020_83]))
+    .attr('y', (d) => getCurrentY(d.situs_county))
+    .style('opacity', 0)
+
+  $uncertainty2020
+    .transition()
+    .duration(500)
+    .delay((d, i) => i * 50)
+    .attr('x1', d => {
+      if (dotsExpanded) {
+        return currentXScale(+d[key2020_17])
+      } else {
+        return currentXScale(+d[key2020_05])
+      }
+    })
+    .attr('x2', d => {
+      if (dotsExpanded) {
+        return currentXScale(+d[key2020_83])
+      } else {
+        return currentXScale(+d[key2020_05])
+      }
+    })
+    .end()
+    .then(() => {
+      $uncertainty2020
+        .transition()
+        .duration(200)
+        .delay((d) => sortedCounties.indexOf(d.situs_county) * 50)
+        .attr('y1', d => getCurrentY(d.situs_county))
+        .attr('y2', d => getCurrentY(d.situs_county))
+    })
+
+  $countyLabels
+    .transition()
+    .duration(500)
+    .delay((d, i) => i * 50)
+    .attr('x', d => -20)
+    .end()
+    .then(() => {
+      $countyLabels
+        .transition()
+        .duration(200)
+        .delay((d) => sortedCounties.indexOf(d.situs_county) * 50)
+        .attr('y', (d) => getCurrentY(d.situs_county))
+    })
 }
 
 function switchToGdp() {
@@ -307,8 +398,11 @@ function constructChart() {
     .classed('costs-title', true)
 
   $subhed = $svg.append('text')
-    .text('Change in annual dollars lost due to climate change, 1980-2018')
+    .text('Change in expected average annual loss ')
     .classed('costs-subhed', true)
+
+  $subhedSpan = $subhed.append('tspan')
+    .text('from hurricanes, 1980-2018')
 
   $countyLabels = $g.selectAll('.county-label')
     .data(data)
@@ -442,29 +536,29 @@ function highlightCounty(county, duration=100) {
   highlightedCounty = county;
 
   $dots2020
-    .transition()
+    .transition('highlight')
     .duration(duration)
     .style('opacity', d => d.situs_county === county ? 1 : 0.2)
 
   $uncertainty2020
-    .transition()
+    .transition('highlight')
     .duration(duration)
     .style('opacity', d => d.situs_county === county ? 1 : 0.2)
 
   $countyLabels
-    .transition()
+    .transition('highlight')
     .duration(duration)
     .style('opacity', d => d.situs_county === county ? 1 : 0.2)
 
   $minValues
-    .transition()
+    .transition('highlight')
     .duration(230)
     .delay(duration - 100)
     .attr('transform', d => d.situs_county === county ? 'translate(-5, 0)' : 'translate(0, 0)')
     .style('opacity', d => d.situs_county === county ? 1 : 0)
 
   $maxValues
-    .transition()
+    .transition('highlight')
     .duration(230)
     .delay(duration - 100)
     .attr('transform', d => d.situs_county === county ? 'translate(5, 0)' : 'translate(0, 0)')
@@ -493,11 +587,16 @@ function renderChart(duration = 0) {
   let key2020_17 = showingGdp ? 'gdp_damage_2020_0.17' : 'damage_2020_0.17';
   let key2020_83 = showingGdp ? 'gdp_damage_2020_0.83' : 'damage_2020_0.83';
 
-  $title.attr('x', 40)
+  $title.attr('x', isMobile ? -50 : 40)
     .attr('y', 30)
 
-  $subhed.attr('x', 40)
+  $subhed.attr('x', isMobile ? -50 : 40)
     .attr('y', 60)
+
+  if (isMobile) {
+    $subhedSpan.attr('x', isMobile ? -50 : 40)
+    .attr('dy', 26)
+  }
 
   $dots2020
     .transition()

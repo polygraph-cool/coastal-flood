@@ -3,6 +3,8 @@ import enterView from 'enter-view';
 
 let data, njData;
 
+let isMobile = window.innerWidth <= 650;
+
 // constants
 const containerSelector = '#sea-level';
 const barPadding = 5;
@@ -73,6 +75,7 @@ function constructChart() {
 
   xAxis = d3.axisBottom(xScale)
     .tickPadding(10)
+    .ticks(isMobile ? 4 : 7)
     .tickFormat(d3.format(".4"));
 
   yAxis = d3.axisLeft(yScale)

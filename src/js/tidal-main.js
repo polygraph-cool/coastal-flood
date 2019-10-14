@@ -91,7 +91,7 @@ function constructScene() {
 
   renderer = new THREE.WebGLRenderer({antialias: true});
 
-  renderer.setClearColor('#0e0d12');
+  renderer.setClearColor('#060509');
 
   renderer.setSize(width, height);
 

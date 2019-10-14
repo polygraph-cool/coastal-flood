@@ -4,9 +4,13 @@ import scrollama from 'scrollama';
 import { sumArray } from './math-utils';
 
 const scroller = scrollama();
-
+const isMobile = window.innerWidth <= 650;
 let initialized = false;
 let previousPose = 0;
+
+const PADDING = isMobile ? 50 : 100;
+const BOX_ROWS = 9;
+
 
 let previousPoints = [];
 
@@ -250,7 +254,12 @@ function constructScene() {
 
   $label2020.append('tspan')
     .attr('x', (width / 2))
-    .text('at risk in 2013')
+    .text('at risk today')
+    .attr('dy', 26)
+
+  $label2020.append('tspan')
+    .attr('x', (width / 2))
+    .text('(median estimate)')
     .attr('dy', 26)
 
   /*
@@ -272,7 +281,7 @@ function constructScene() {
     .style('fill', 'white');
   */
 
-  nPoints = data.buildings_flooded_surge_rp30_2013;
+  nPoints = isMobile ? data.buildings_flooded_surge_rp30_2013 / 50 : data.buildings_flooded_surge_rp30_2013;
 
   pointWidth = 2;
 
@@ -525,6 +534,8 @@ function squareLayout2020(points) {
   let y2 = y1 + height2020;
 
   return points.map((point, i) => {
+    if (isMobile) i *= 50;
+
     if (i < total2020) {
       point.x = point.sx || x1 + (Math.random() * (x2 - x1))
       point.y = point.sy || y1 + (Math.random() * (y2 - y1))
@@ -547,9 +558,10 @@ function gray() {
 }
 
 function circleLayout(points) {
-  let radius = width / 2;
+  let radius = width / 2 - 15;
 
   return points.map((point, i) => {
+    if (isMobile) i *= 50;
     let theta = Math.random() * (Math.PI * 2);
     let r = radius * Math.sqrt(Math.random());
 
@@ -566,9 +578,10 @@ function circleLayout(points) {
 }
 
 function coloredCircleLayout(points) {
-  let radius = width / 2;
+  let radius = width / 2 - 15;
 
   return points.map((point, i) => {
+    if (isMobile) i *= 50;
     let theta = Math.random() * (Math.PI * 2);
     let r = radius * Math.sqrt(Math.random());
 
@@ -592,20 +605,23 @@ function coloredCircleLayout(points) {
 
 
 function genericGridLayout(points, cutoff, colorFn) {
-  const BOX_ROWS = 9;
   //const BOX_COLS = 12;
   const N_DOTS_PER_BOX = 1000;
-  const BOX_SIDE = 50;
-  const BOX_GAP = 5;
-
-  const nBoxes = Math.ceil(cutoff / N_DOTS_PER_BOX);
+  
+   const nBoxes = Math.ceil(cutoff / N_DOTS_PER_BOX); 
 
   const BOX_COLS = Math.ceil(nBoxes / BOX_ROWS);
+  const BOX_SIDE = (width - PADDING * 2) / BOX_COLS;
+
+  const BOX_GAP = 5;
+
+
 
   const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
   const totalWidth = ((BOX_COLS) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
 
-  return points.map((point, i) => {
+  return points.map((point, i) => { 
+    if (isMobile) i *= 50;
 
     let trueI = i;
 
@@ -632,15 +648,13 @@ function genericGridLayout(points, cutoff, colorFn) {
 
 
 function surgeLayout1980(points) {
-  const BOX_ROWS = 9;
   //const BOX_COLS = 12;
   const N_DOTS_PER_BOX = 1000;
-  const BOX_SIDE = 50;
+  let nBoxes = Math.ceil(points.length / N_DOTS_PER_BOX);
+  const BOX_COLS = Math.ceil(nBoxes / BOX_ROWS);
+  const BOX_SIDE = (width - PADDING * 2) / BOX_COLS;
   const BOX_GAP = 5;
 
-  const nBoxes = Math.ceil(points.length / N_DOTS_PER_BOX);
-
-  const BOX_COLS = Math.ceil(nBoxes / BOX_ROWS);
 
   const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
   const totalWidth = ((BOX_COLS) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;

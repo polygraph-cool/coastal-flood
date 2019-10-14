@@ -45,7 +45,7 @@ function loadData() {
   }, {});
 
   data.timestamp = Date.now();
-  data.basepath = ENV === 'dev' ? '' : '';
+  data.basepath = ENV === 'dev' ? '' : 'https://polygraph-cool.github.io/coastal-flood/';
   return Promise.resolve(data);
 }
 

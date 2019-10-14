@@ -8,6 +8,13 @@ const scroller = scrollama();
 
 let initialized = false;
 
+const isMobile = window.innerWidth <= 650;
+
+const BOX_ROWS =  isMobile ? 15 : 10;
+//const BOX_COLS = 12;
+const N_DOTS_PER_BOX = 1000;
+const BOX_GAP = 5;
+
 let barChartView;
 
 let floodingData, geoData, floodedByYear;
@@ -89,7 +96,7 @@ let colors = {
 
 let startTime = null;
 
-const padding = {top: 200, bottom: 100, left: 300, right: 100}
+const padding = {top: 200, bottom: 100, left: isMobile ? 130 : 300, right: 40}
 
 let sortedCounties,
   nCounties,
@@ -402,11 +409,7 @@ function constructScene() {
     .attr('y', (d, i) => padding.top + (barHeight * i) + (barHeight / 2))
     .style('fill', 'white');
 
-  const BOX_ROWS = 10;
-  //const BOX_COLS = 12;
-  const N_DOTS_PER_BOX = 1000;
-  const BOX_SIDE = 50;
-  const BOX_GAP = 5;
+  
 
   const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
   const nBoxesEm18 = Math.ceil((floodedByYear.em18) / N_DOTS_PER_BOX);
@@ -414,8 +417,17 @@ function constructScene() {
   const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
   const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
 
+  const TOTAL_BOX_COLS = BOX_COLS_KT + BOX_COLS_EM + 1;
+  let BOX_SIDE = (width - 100 * 2) / TOTAL_BOX_COLS;
+
+  if (BOX_SIDE * BOX_ROWS > height  - 400) {
+    BOX_SIDE = (height - 400) / BOX_ROWS;
+  } 
+
   const totalChartHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
   const totalChartWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
+
+  console.log(totalChartHeight, totalChartWidth)
 
   $ktHeader = $svg.append('text')
     .style('opacity', 0)
@@ -479,11 +491,12 @@ function constructScene() {
     .attr('alignment-baseline', 'middle')
     .classed('box-label-text', true);
 
+  let nBoxesLeft = isMobile ? 1 : 3;
   $orangeLabel = $svg.append('g')
     .classed('orange-label', true)
     .style('opacity', 0)
     .attr('transform', `translate(${
-      (width / 2) - (totalChartWidth / 2) + ((BOX_SIDE + BOX_GAP) * 3)
+      (width / 2) - (totalChartWidth / 2) + ((BOX_SIDE + BOX_GAP) * nBoxesLeft)
     }, ${
       (height / 2) - (totalChartHeight / 2) + ((BOX_ROWS - 1) * (BOX_SIDE + BOX_GAP))
     })`)
@@ -518,6 +531,8 @@ function constructScene() {
     .attr('dy', 26)
 
   nPoints = floodedByYear.em18 + floodedByYear.em80;
+
+  if (isMobile) nPoints = nPoints / 10;
 
   pointWidth = 2;
 
@@ -750,6 +765,7 @@ function createPoints(nPoints) {
 
 function mapLayout(points) {
   return points.map((point, i) => {
+    if (isMobile) i *= 10;
     // If this is a property that floods during king tides...
     if (i < floodedByYear.kt18) {
       let [x, y] = projection(geoData.features[i].geometry.coordinates);
@@ -795,22 +811,27 @@ let previousMade = false;
 let previousPoints = [];
 
 function genericGridLayout(points, cutoff, colorFn) {
-  const BOX_ROWS = 10;
-  //const BOX_COLS = 12;
-  const N_DOTS_PER_BOX = 1000;
-  const BOX_SIDE = 50;
-  const BOX_GAP = 5;
+  const padding = 100;
 
   const nBoxesKt18 = Math.ceil(floodedByYear.kt18 / N_DOTS_PER_BOX);
   const nBoxesEm18 = Math.ceil((floodedByYear.em18) / N_DOTS_PER_BOX);
 
   const BOX_COLS_KT = Math.ceil(nBoxesKt18 / BOX_ROWS);
   const BOX_COLS_EM = Math.ceil(nBoxesEm18 / BOX_ROWS);
+  const TOTAL_BOX_COLS = BOX_COLS_KT + BOX_COLS_EM + 1;
+
+  let BOX_SIDE = (width - padding * 2) / TOTAL_BOX_COLS;
+
+  if (BOX_SIDE * BOX_ROWS > height  - 400) {
+    BOX_SIDE = (height - 400) / BOX_ROWS;
+  } 
 
   const totalHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
   const totalWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
 
   return points.map((point, i) => {
+    if (isMobile) i *= 10;
+
     let BOX_COLS = i < floodedByYear.kt18 ? BOX_COLS_KT : BOX_COLS_EM;
     let offset = i < floodedByYear.kt18 ? 0 : (BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP);
 
@@ -863,6 +884,8 @@ function annualCountyLayout(points) {
   let currentCountInCounty = 0;
 
   return points.map((point, i) => {
+    if (isMobile) i *= 10;
+
     if (i > floodedByYear.em18) {
       point.color = [0, 0, 0, 0];
       return point;
@@ -912,6 +935,8 @@ function frequentCountyLayout(points) {
   console.log(sortedCounties)
 
   return points.map((point, i) => {
+    if (isMobile) i *= 10;
+
     if (i > floodedByYear.em18) {
       point.color = [0, 0, 0, 0];
       return point;

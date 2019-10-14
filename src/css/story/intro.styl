@@ -97,7 +97,7 @@
 	h1
 		font-family big-caslon-fb, serif
 		color white
-		line-height 75px
+		line-height 60px
 		margin-bottom 100px
 		white-space nowrap
 
@@ -107,11 +107,11 @@
 			font-family inherit
 			
 			&.title-top
-				font-size 50px
+				font-size 40px
 				font-weight bold
 			
 			&.title-bottom
-				font-size 80px
+				font-size 60px
 				color $text
 				position relative
 				
@@ -187,3 +187,48 @@
 		margin 0 auto
 		margin-top 1rem
 		text-align center
+		
+@media (max-width: 650px)
+	.intro-text
+		position relative
+		top 0
+		padding-top 32vh
+		width auto
+		left auto
+		padding 0 15px
+		margin-top 90px
+		
+		h2
+			margin-bottom 100px
+		
+	.intro
+		background transparent
+		height auto
+
+		svg
+			display none
+			
+
+	.title-top
+		font-size 30px !important
+
+	.title-bottom
+		font-size 45px !important
+
+	.intro__step
+		opacity 1 !important
+		height auto
+		margin-bottom 30px !important
+		
+		&__text
+			font-size 20px !important
+
+	.intro-text-centered
+		padding 0 15px
+		
+		&-first
+			margin-top 0
+			
+	.split-image
+		width auto
+		height 100%

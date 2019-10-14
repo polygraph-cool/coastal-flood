@@ -3,6 +3,14 @@
 body 
   background-color #030305
   padding-bottom 100px
+  position absolute
+  width 100vw
+  
+.end-icon
+  width 40px
+  margin auto
+  opacity 0.5
+  margin-top 70px
  
 .text
   font-size 20px
@@ -131,7 +139,7 @@ body
     height 100vh
     
   .split-text
-    \width 350px
+    width 350px
     padding 40vh 0
     
     p
@@ -167,6 +175,16 @@ body
         margin-top -10px
         font-size 80px
   
+  .split-image__credit
+    position absolute
+    left 0
+    bottom 0
+    padding 8px
+    background-color rgba(black, 0.5)
+    color rgba(white, 0.6)
+    border-top-right-radius 5px
+    font-family forma-djr-deck, sans-serif
+
   .split-image-wrap
     width 100vw
     height 100vh
@@ -183,3 +201,59 @@ body
   position relative
   top -70vh
   padding-bottom 100px
+  
+.mobile
+  display none
+  
+@media (max-width: 650px)
+  .image-chart-wrap
+    padding 20px 0
+
+  html, body
+    width 100vw
+    overflow-x hidden
+    
+  .desktop
+    display none
+  
+  .mobile
+    display block
+
+  .outro
+    top 0
+  
+  .split-image-wrap
+    display none
+    
+  .split-header-wrap
+    height auto
+    
+  .text--centered
+    width auto
+    padding 0 15px
+    
+  .split-wrap
+    display block
+    padding 0
+    
+    .split-chart
+      flex 1
+      position sticky
+      top 0
+      margin-right 0px
+      height 100vh
+    
+  .split-text
+    margin-top -100vh
+    padding 0 15px !important
+    width auto !important
+    position relative
+    z-index 999
+    padding-top 0
+    
+    p
+      margin 40px 0 !important
+      color white !important
+      padding 0px !important
+      border-radius 2px !important
+      opacity 1 !important

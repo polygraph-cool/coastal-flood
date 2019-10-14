@@ -34,6 +34,8 @@ scroller
   });
 */
 
+let isMobile = window.innerWidth <= 650;
+
 let imageWidth = 5314;
 let imageHeight = 2480;
 
@@ -222,7 +224,14 @@ function constructScene() {
     .data(legendLabels)
     .enter()
     .append('g')
-    .attr('transform', (d, i) => `translate(-30, ${i * 30 + (height / 2 - 100)})`);
+    .attr('transform', (d, i) => {
+      if (isMobile) {
+        return `translate(${i * 50 + ((width / 2) - (50 * legendLabels.length) / 2)} ,${height - 30})`
+      } else {
+        return `translate(-30, ${i * 30 + (height / 2 - 100)})`;
+      }
+      
+    });
 
   let legendTitle = $svg.append('text')
     .classed('legend-title', true)
@@ -242,30 +251,54 @@ function constructScene() {
 
   let moreLikely = $svg.append('text')
     .classed('legend-label', true)
-    .attr('y', height / 2 - 85)
-    .attr('x', -40)
-    .attr('text-anchor', 'end')
+    .attr('y',() => {
+      if (isMobile) {
+        return height - 40
+      } else {
+        return height / 2 - 85
+      }
+    })
+    .attr('x', () => {
+      if (isMobile) {
+        return width / 2  -  (legendLabels.length * 50) / 2
+      } else {
+        return -40
+      }
+    })
+    .attr('text-anchor', isMobile ? 'start' : 'end')
 
   moreLikely.append('tspan').text('MORE')
   moreLikely.append('tspan')
-    .text('LIKELY')
-    .attr('dy', 20)
-    .attr('x', -40)
+    .text(' LIKELY')
+    .attr('dy', isMobile ? 0 : 20)
+    .attr('x', isMobile ? null : -40)
 
   let lessLikely = $svg.append('text')
     .classed('legend-label', true)
-    .attr('y', height / 2 + 75)
-    .attr('x', -40)
+    .attr('y', () => {
+      if (isMobile) {
+        return height - 40
+      } else {
+        return height / 2 + 75
+      }
+    })
+    .attr('x',() => {
+      if (isMobile) {
+        return width / 2  +  (legendLabels.length * 50) / 2
+      } else {
+        return -40
+      }
+    })
     .attr('text-anchor', 'end')
 
   lessLikely.append('tspan').text('LESS')
   lessLikely.append('tspan')
-    .text('LIKELY')
-    .attr('dy', 20)
-    .attr('x', -40)
+    .text(' LIKELY')
+    .attr('dy', isMobile ? 0 : 20)
+    .attr('x', isMobile ? null : -40)
 
   $legend.append('rect')
-    .attr('width', 20)
+    .attr('width', isMobile ? 50 : 20)
     .attr('height', 20)
     .style('fill', (d, i) => {
       return colorScale(i + 3);
@@ -276,6 +309,7 @@ function constructScene() {
     .classed('wind-legend-text', true)
     .attr('x', 30)
     .attr('y', 15)
+    .style('display', isMobile ? 'none' : 'auto')
 
   $paths_1980 = $svg.selectAll('.path-1980')
     .data(d_1980.features)

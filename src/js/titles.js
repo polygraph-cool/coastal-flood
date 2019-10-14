@@ -16,9 +16,11 @@ function startScrollListener() {
   .setup({
     step: '.split-header-wrap',
     progress: true,
-    offset: 0
+    offset: 0,
+    threshold: 0.1
   })
   .onStepProgress(({element, index, progress}) => {
+    console.log(progress)
 
     d3.select(element).select('.split-image-wrap')
       .style('opacity',  1 - (progress * 3));

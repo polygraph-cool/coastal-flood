@@ -1,6 +1,5 @@
 /* global d3 */
 import debounce from 'lodash.debounce';
-import isMobile from './utils/is-mobile';
 import seaLevel from './sea-level';
 import tidal from './tidal-regl';
 import windMap from './wind-regl';
@@ -11,13 +10,9 @@ import intro from './intro';
 import titles from './titles';
 import scrollama from 'scrollama';
 
+let isMobile = window.innerWidth <= 650;
+
 let scroller = scrollama();
-
-if ('scrollRestoration' in window.history) {
-  window.history.scrollRestoration = 'manual'
-}
-
-window.scrollTo(0, 0)
 
 // import footer from './footer';
 
@@ -41,7 +36,6 @@ function resize() {
 
 function init() {
   // add mobile class to body tag
-  $body.classed('is-mobile', isMobile.any());
   // setup resize addEventListener
   window.addEventListener('resize', debounce(resize, 150));
   // setup sticky header menu
@@ -51,9 +45,13 @@ function init() {
   //windLarge.init();
   //stormTracks.init();
   costs.init();
-  tidal.init();
-  windMap.init();
-  surge.init();
+
+  if (!isMobile) {
+    tidal.init();
+    windMap.init();
+    surge.init();
+  }
+  
   intro.init();
   titles.init();
   // load footer stories

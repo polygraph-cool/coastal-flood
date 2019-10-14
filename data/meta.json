@@ -1,17 +1,12 @@
 {
-	"title": "Title Case Hed Goes Here",
-	"description": "Sentence case dek goes down here. Modify these in data/meta.json.",
+	"title": "New Jersey’s Rising Coastal Risk",
+	"description": "Changes in the climate since the 1980s have put a growing share of New Jersey’s coastal communities at risk. This report quantifies the impact of sea-level rise and changes in hurricane activity over the past four decades and explores the economic implications for the state in the years ahead.",
 	"site": "https://site.com",
 	"siteName": "",
 	"url": "https://site.com/year/month/name/",
 	"keywords": "tk",
-	"imgFacebook": "https://site.com/year/month/name/assets/social/social-facebook.jpg",
-	"imgTwitter": "https://site.com/year/month/name/assets/social/social-twitter.jpg",
-	"author": {
-		"name": "",
-		"url": "https://site.com/author/the-pudding-team",
-		"twitterHandle": ""
-	},
+	"imgFacebook": "/assets/social/coastal_facebook.png",
+	"imgTwitter": "/assets/social/coastal_twitter.png",
 	"analytics": "",
 	"lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mollis neque sit amet sollicitudin vehicula. Maecenas fringilla mi non lacus mattis elementum. Curabitur dignissim faucibus justo."
 }
