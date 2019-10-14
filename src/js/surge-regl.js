@@ -233,7 +233,7 @@ function constructScene() {
 
   $count2020 = $svg.append('text')
     .text('0')
-    .attr('y', height - 150)
+    .attr('y', height - 110)
     .style('fill', 'white')
     .attr('x', (width / 2))
     .attr('text-anchor', 'middle')
@@ -241,7 +241,7 @@ function constructScene() {
     .classed('count-label', true);
 
   $label2020 = $svg.append('text')
-    .attr('y', height - 120)
+    .attr('y', height - 80)
     .style('fill', 'white')
     .attr('x', (width / 2))
     .attr('text-anchor', 'middle')
@@ -250,12 +250,7 @@ function constructScene() {
 
   $label2020.append('tspan')
     .attr('x', (width / 2))
-    .text('additional properties')
-
-  $label2020.append('tspan')
-    .attr('x', (width / 2))
-    .text('at risk today')
-    .attr('dy', 26)
+    .text('additional properties at risk today')
 
   $label2020.append('tspan')
     .attr('x', (width / 2))

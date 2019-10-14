@@ -14,6 +14,10 @@ let isMobile = window.innerWidth <= 650;
 
 let scroller = scrollama();
 
+window.onbeforeunload = function () {
+  window.scrollTo(0, 0);
+}
+
 // import footer from './footer';
 
 const $body = d3.select('body');
