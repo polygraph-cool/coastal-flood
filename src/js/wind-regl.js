@@ -228,7 +228,7 @@ function constructScene() {
       if (isMobile) {
         return `translate(${i * 50 + ((width / 2) - (50 * legendLabels.length) / 2)} ,${height - 30})`
       } else {
-        return `translate(-30, ${i * 30 + (height / 2 - 100)})`;
+        return `translate(-0, ${i * 30 + (height / 2 - 100)})`;
       }
       
     });

@@ -4,6 +4,32 @@
 	fill black !important
 // Text
 
+.full-jump
+	display inline-block
+	background-color rgba(255, 255, 255, 0.2)
+	color white
+	text-transform uppercase
+	font-size 16px
+	width auto
+	padding 10px
+	font-weight bold
+	border-radius 3px
+	line-height 22px
+	letter-spacing 1px
+	margin-top 40px
+	font-family forma-djr-deck
+	transition background-color 0.2s ease
+	
+	&:hover
+		color white
+		background-color rgba(255, 255, 255, 0.25)
+		
+		.arrow
+			margin-left 5px
+	
+	.arrow
+		transition margin-left 0.2s ease
+
 .intro-text-centered-first
 	margin-top -80vh
 
@@ -144,7 +170,7 @@
 	background url('assets/images/bg_3.png')
 	background-size cover
 	background-reeat no-repeat
-	background-position left center
+	background-position center
 	transition transform 3s cubic-bezier(0.215, 0.61, 0.355, 1)
 	
 	&.zoomed

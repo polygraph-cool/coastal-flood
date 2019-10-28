@@ -176,8 +176,6 @@ function constructChart() {
 
   $g = $svg.append('g');
 
-  console.log(countyData.features)
-
   $counties = $g.selectAll('.county')
     .data(countyData.features)
     .enter()
@@ -352,6 +350,8 @@ function resize() {
 
   renderChart();
 }
+
+window.addEventListener('resize', resize)
 
 export default {
   init,

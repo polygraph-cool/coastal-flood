@@ -117,8 +117,6 @@ function renderChart() {
     .attr('width', width + margins.left + margins.right)
     .attr('height', height + margins.top + margins.bottom);
 
-  console.log(yScale(1))
-
   $majorStormRects
     .attr('x', d => xScale(d.year))
     .attr('y', d => height - yScale(d.n_major_hurricanes))

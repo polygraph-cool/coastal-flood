@@ -53,8 +53,6 @@ function init() {
       em33
     }
 
-    console.log(newPropertiesFloodedByYear);
-
     floodingData = d;
     geoData = f; 
     //console.log((maxTotal / 1000) / BOX_ROWS);
@@ -70,8 +68,6 @@ function constructScene() {
     .parallels([29.5, 45.5]);
 
   resize(false);
-
-  console.log(projection(geoData.features[0].geometry.coordinates)) 
 
   scene = new THREE.Scene();
 
@@ -150,8 +146,6 @@ function getFirstPose(key, nPoints) {
       points[ i * 3 + 2 ] = 10 + Math.random();
     }
   }
-
-  console.log(points)
 
   firstMorphPoints[key] = points;
 

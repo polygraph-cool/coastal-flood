@@ -134,7 +134,6 @@ scroller
   })
   .onStepEnter(({ element, index, direction }) => {
     let pose = parseInt(element.dataset.pose);
-    console.log(element)
 
     d3.selectAll('.costs-step')
       .style('opacity', function() {
@@ -146,7 +145,6 @@ scroller
       })
 
     poseFns[pose]();
-    console.log(pose);
   })
   .onStepExit(response => {
     // { element, index, direction }

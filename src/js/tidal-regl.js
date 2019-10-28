@@ -43,8 +43,6 @@ toggle.on('change', function(e) {
     animateToPose(4);
   });
 
-console.log(toggle)
-
 function coordsToGeoJson(coords) {
   coords.push(coords[0]); // last coord needs to be the same as the first to be valid
   return {
@@ -301,8 +299,6 @@ scroller
 
       let key = `in_${poseNum}`;
 
-      console.log(key)
-
       fns[key](direction);
     }
   })
@@ -314,7 +310,11 @@ scroller
 
       let key = `out_${poseNum}`;
 
-      fns[key](direction);
+      if (fns[key]) {
+        fns[key](direction);
+      }
+      
+      
     }
   });
 
@@ -346,8 +346,6 @@ function init() {
       em18,
       kt80
     }
-
-    console.log(floodedByYear)
 
     floodingData = d;
     geoData = f; 
@@ -426,8 +424,6 @@ function constructScene() {
 
   const totalChartHeight = (BOX_ROWS * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
   const totalChartWidth = ((BOX_COLS_EM + BOX_COLS_KT + 1) * (BOX_SIDE + BOX_GAP)) - BOX_GAP;
-
-  console.log(totalChartHeight, totalChartWidth)
 
   $ktHeader = $svg.append('text')
     .style('opacity', 0)
@@ -871,7 +867,6 @@ function genericGridLayout(points, cutoff, colorFn) {
 }
 
 function countyLayout(points) {
-  console.log(barChartView)
   if (barChartView === 'annual flooding') {
     return annualCountyLayout(points);
   } else if (barChartView === 'frequent flooding') {
@@ -932,7 +927,6 @@ function frequentCountyLayout(points) {
   let currentCounty = 0;
   let currentCountInCounty = 0;
 
-  console.log(sortedCounties)
 
   return points.map((point, i) => {
     if (isMobile) i *= 10;
@@ -1034,7 +1028,17 @@ function updateProjection() {
 }
 
 function resize() {
-  
+  updateProjection();
+
+  const drawPoints = createDrawPoints(points);
+  drawPoints({
+    pointWidth,
+    stageWidth: width,
+    stageHeight: height,
+    duration: 0,
+    startTime: new Date(),
+    delayByIndex: 0,
+  });
 }
 
 export default {

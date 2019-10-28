@@ -39,7 +39,10 @@ scroller
       //showCountyLabels(poseNum === 4);
     }
 
-    stepFns[poseNum]();
+    if (stepFns[poseNum]) {
+      stepFns[poseNum]();
+    }
+    
   })
   .onStepExit(response => {
     // { element, index, direction }
@@ -105,7 +108,6 @@ let stepFns = {
 
   },
   1: () => {
-    console.log('1')
      $count2020
       .transition()
       .duration(300)
