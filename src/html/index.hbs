@@ -25,7 +25,7 @@
 <body>
 	<nav id="nav">
 		<a href="https://rhg.com/research/new-jersey-flooding-hurricanes-costs-climatechange" class="nav__image">
-			<img src="{{basepath}}assets/images/rhodium_logo.png"/>
+			<img src="/assets/images/rhodium_logo.png"/>
 		</a>
 		<h1>New Jersey’s Rising Coastal Risk</h1>
 	</nav>
@@ -39,12 +39,12 @@
 			</h1>
 			<div class="logos">
 				<div class="logos__row">
-					<img class="split-image" src="{{basepath}}assets/images/rhodium_logo.png"/>
-					<img class="split-image" src="{{basepath}}assets/images/rutgers_logo.png"/>
+					<img class="split-image" src="/assets/images/rhodium_logo.png"/>
+					<img class="split-image" src="/assets/images/rutgers_logo.png"/>
 				</div>
 				<div class="logos__row">
-					<img class="split-image" src="{{basepath}}assets/images/epic_logo.png"/>
-					<img class="split-image" src="{{basepath}}assets/images/berkley_logo.png"/>
+					<img class="split-image" src="/assets/images/epic_logo.png"/>
+					<img class="split-image" src="/assets/images/berkley_logo.png"/>
 				</div>
 			</div>
 			<h2>
@@ -95,7 +95,7 @@
 		<div>
 			<div class="tidal-header split-header-wrap">
 				<div class="split-image-wrap">
-					<div class="split-image" style="background-image:url({{basepath}}assets/images/surge.jpeg)"></div>
+					<div class="split-image" style="background-image:url(/assets/images/surge.jpeg)"></div>
 					<div class="split-image__credit">
 						Scott Anema/New Jersey National Guard
 					</div>
@@ -131,7 +131,7 @@
 			</div>
 			<div class="tidal-main">
 				<div class="tidal-main__graphic" id="tidal-graphic">
-					<div class="basemap-image" style="background-image:url({{basepath}}assets/images/nj_wide.png)"></div>
+					<div class="basemap-image" style="background-image:url(/assets/images/nj_wide.png)"></div>
 					
 					<h2 id="county-header">
 						Properties at risk of  <select class="tidal-toggle" id="tidal-toggle"> by county
@@ -158,7 +158,7 @@
 				
 						{{#ifEquals this.type 'chart'}}
 							<div class="image-chart-wrap">
-								<img src="{{basepath}}assets/images/{{this.url}}"
+								<img src="/assets/images/{{this.url}}"
 							</div>
 						{{/ifEquals}}
 					{{/each}}
@@ -170,7 +170,7 @@
 	<section class="hurricanes">
 		<div class="tidal-header split-header-wrap">
 			<div class="split-image-wrap">
-				<div class="split-image" style="background-image:url({{basepath}}assets/images/wind.jpg)"></div>
+				<div class="split-image" style="background-image:url(/assets/images/wind.jpg)"></div>
 				<div class="split-image__credit">
 					Flickr / Garden State Hiker
 				</div>
@@ -214,7 +214,7 @@
 			
 					{{#ifEquals this.type 'chart'}}
 						<div class="image-chart-wrap">
-							<img src="{{basepath}}assets/images/{{this.url}}"
+							<img src="/assets/images/{{this.url}}"
 						</div>
 					{{/ifEquals}}
 				{{/each}}
@@ -233,7 +233,7 @@
 		</div>
 		<div id="wind-main">
 			<div class="tidal-main__graphic" id="wind-main__chart">
-				<div class="basemap-image" style="background-image:url({{basepath}}assets/images/nj_wide.png)"></div>
+				<div class="basemap-image" style="background-image:url(/assets/images/nj_wide.png)"></div>
 			</div>
 			<div class="desktop" id="wind-main__text">
 				{{#each copy.wind}}
@@ -251,7 +251,7 @@
 			
 					{{#ifEquals this.type 'chart'}}
 						<div class="image-chart-wrap">
-							<img src="{{basepath}}assets/images/{{this.url}}"
+							<img src="/assets/images/{{this.url}}"
 						</div>
 					{{/ifEquals}}
 				{{/each}}
@@ -268,7 +268,7 @@
 	<section class="costs-intro" id="costs">
 		<div class="tidal-header split-header-wrap">
 			<div class="split-image-wrap">
-				<div class="split-image" style="background-image:url({{basepath}}assets/images/costs.jpg)"></div>
+				<div class="split-image" style="background-image:url(/assets/images/costs.jpg)"></div>
 				<div class="split-image__credit">
 					U.S. Army Corps of Engineers	
 				</div>
@@ -319,7 +319,7 @@
 		
 	</section>
 
-	<script src='{{basepath}}assets/scripts/d3.v5.9.1.min.js'></script>
+	<script src='/assets/scripts/d3.v5.9.1.min.js'></script>
 	<script src='main.js?version={{timestamp}}' async></script>
 </body>
 
