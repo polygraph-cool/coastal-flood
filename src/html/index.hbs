@@ -131,7 +131,8 @@
 			</div>
 			<div class="tidal-main">
 				<div class="tidal-main__graphic" id="tidal-graphic">
-					<img class="basemap-image" src="{{basepath}}assets/images/nj_wide.png" />
+					<div class="basemap-image" style="background-image:url({{basepath}}assets/images/nj_wide.png)"></div>
+					
 					<h2 id="county-header">
 						Properties at risk of  <select class="tidal-toggle" id="tidal-toggle"> by county
 							<option>annual flooding</option>
@@ -232,7 +233,7 @@
 		</div>
 		<div id="wind-main">
 			<div class="tidal-main__graphic" id="wind-main__chart">
-				<img class="basemap-image" src="{{basepath}}assets/images/nj_wide.png" />
+				<div class="basemap-image" style="background-image:url({{basepath}}assets/images/nj_wide.png)"></div>
 			</div>
 			<div class="desktop" id="wind-main__text">
 				{{#each copy.wind}}

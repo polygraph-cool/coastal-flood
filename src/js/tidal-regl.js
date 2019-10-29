@@ -78,7 +78,7 @@ let $svg,
   $emHeader,
   $xAxis,
   $countyHeader = d3.select('#county-header'),
-  $basemap = d3.select('#tidal-graphic img');
+  $basemap = d3.select('#tidal-graphic .basemap-image');
 
 let points,
   poses,
