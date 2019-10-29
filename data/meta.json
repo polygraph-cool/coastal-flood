@@ -5,8 +5,8 @@
 	"siteName": "",
 	"url": "njcoastalrisk.rhg.com",
 	"keywords": "",
-	"imgFacebook": "/assets/social/coastal_facebook.png",
-	"imgTwitter": "/assets/social/coastal_twitter.png",
+	"imgFacebook": "https://pudding.cool/2019/10/nj-climate/assets/images/coastal_facebook.png",
+	"imgTwitter": "https://pudding.cool/2019/10/nj-climate/assets/images/coastal_twitter.png",
 	"analytics": "",
 	"lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mollis neque sit amet sollicitudin vehicula. Maecenas fringilla mi non lacus mattis elementum. Curabitur dignissim faucibus justo."
 }
